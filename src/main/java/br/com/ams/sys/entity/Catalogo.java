@@ -6,33 +6,37 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.io.Serial;
 import java.util.List;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(of = {"codigo"})
+@ToString(of = { "codigo" })
 @Entity
-@Table
+@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
 public class Catalogo extends AbstractTimesTampEntity {
 
-    @EqualsAndHashCode.Include
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CODIGO")
-    private Integer codigo;
+	@Serial
+	private static final long serialVersionUID = 1L;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
-    @JoinColumn
-    private Empresa empresa;
+	@EqualsAndHashCode.Include
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column
+	private Long codigo;
 
-    @Column(name = "ATIVO")
-    private Boolean ativo;
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
+	@JoinColumn(nullable = false)
+	private Empresa empresa;
 
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonManagedReference
-    @OneToMany(cascade = {CascadeType.PERSIST,
-            CascadeType.MERGE}, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "catalogo", targetEntity = CatalogoPagina.class)
-    private List<CatalogoPagina> catalogoPaginas;
+	@Column(nullable = false)
+	private Boolean ativo = false;
+
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonManagedReference
+	@OneToMany(cascade = { CascadeType.PERSIST,
+			CascadeType.MERGE }, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "catalogo", targetEntity = CatalogoPagina.class)
+	private List<CatalogoPagina> catalogoPaginas;
 }

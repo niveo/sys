@@ -6,13 +6,17 @@ plugins {
 
 group = 'br.com.ams'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = '18'
+targetCompatibility = '18'
 
+/* 
+--Gradle e vscode não reconhece
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
-}
+} 
+*/
 
 configurations {
 	compileOnly {
@@ -24,14 +28,16 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+dependencies { 
 	//implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.postgresql:postgresql'
 
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
@@ -49,4 +55,14 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+/*application {
+	mainClass = 'br.com.ams.sys.SysApplication'
+}*/
+
+tasks {
+	bootJar {
+		archiveFileName.set("aplicativo.jar")
+	}
 }

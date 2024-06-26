@@ -1,13 +1,11 @@
 package br.com.ams.sys.entity;
 
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-
 
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -22,27 +20,27 @@ import lombok.Data;
 @MappedSuperclass
 public abstract class AbstractTimesTampEntity implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+	@Serial
+	private static final long serialVersionUID = 1L;
 
-    @Basic
-    @CreationTimestamp()
-    @Column(name = "DATA_CADASTRADO")
-    private ZonedDateTime dataCadastrado;
+	@Basic
+	@CreationTimestamp()
+	@Column
+	private ZonedDateTime dataCadastrado;
 
-    @Basic
-    @UpdateTimestamp
-    @Column(name = "DATA_ALTERADO")
-    private ZonedDateTime dataAlterado;
+	@Basic
+	@UpdateTimestamp
+	@Column
+	private ZonedDateTime dataAlterado;
 
-    @PrePersist
-    public void onInsert() {
-        dataCadastrado = ZonedDateTime.now(ZoneId.systemDefault());
-        dataAlterado = dataCadastrado;
-    }
+	@PrePersist
+	public void onInsert() {
+		dataCadastrado = ZonedDateTime.now(ZoneId.systemDefault());
+		dataAlterado = dataCadastrado;
+	}
 
-    @PreUpdate
-    public void onUpdate() {
-        dataAlterado = ZonedDateTime.now(ZoneId.systemDefault());
-    }
+	@PreUpdate
+	public void onUpdate() {
+		dataAlterado = ZonedDateTime.now(ZoneId.systemDefault());
+	}
 }

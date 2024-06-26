@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_USER: "ams"
+      POSTGRES_DB: "sysdb"
+    ports:
+      - "5432:5432"
+

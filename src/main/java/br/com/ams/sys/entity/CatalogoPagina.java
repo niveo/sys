@@ -25,10 +25,10 @@ public class CatalogoPagina implements Serializable {
     @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CODIGO")
-    private Integer codigo;
+    @Column
+    private Long codigo;
 
-    @Column(name = "PAGINA")
+    @Column
     private Integer pagina;
 
     @JsonManagedReference
