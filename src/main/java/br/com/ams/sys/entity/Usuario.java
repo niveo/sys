@@ -3,11 +3,6 @@ package br.com.ams.sys.entity;
 import java.io.Serial;
 import java.util.List;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,11 +10,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,8 +28,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
-@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
-public class Catalogo extends AbstractTimesTampEntity {
+@Table
+public class Usuario extends AbstractTimesTampEntity {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -44,16 +40,23 @@ public class Catalogo extends AbstractTimesTampEntity {
 	@Column
 	private Long codigo;
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
-	@JoinColumn(nullable = false, name = "empresa", insertable = false, updatable = false)
-	private Empresa empresa;
+	@Column(nullable = false)
+	private String nome;
+
+	@Column(nullable = false, unique = true)
+	private String email;
 
 	@Column(nullable = false)
-	private Boolean ativo = false;
+	private String senha;
 
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	@JsonManagedReference
-	@OneToMany(cascade = { CascadeType.PERSIST,
-			CascadeType.MERGE }, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "catalogo", targetEntity = CatalogoPagina.class)
-	private List<CatalogoPagina> catalogoPaginas;
+	@ManyToMany
+	@JoinTable(name = "usuario_has_empresas", joinColumns = @JoinColumn(name = "usuario"), inverseJoinColumns = @JoinColumn(name = "empresa"), uniqueConstraints = {
+			@UniqueConstraint(columnNames = { "usuario", "empresa" }) })
+	private List<Empresa> empresas;
+
+	@ManyToMany
+	@JoinTable(name = "usuario_has_clientes", joinColumns = @JoinColumn(name = "usuario"), inverseJoinColumns = @JoinColumn(name = "cliente"), uniqueConstraints = {
+			@UniqueConstraint(columnNames = { "usuario", "cliente" }) })
+	private List<Cliente> clientes;
+
 }

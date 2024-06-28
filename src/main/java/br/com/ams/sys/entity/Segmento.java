@@ -25,7 +25,7 @@ import lombok.ToString;
 @ToString(of = { "codigo" })
 @Entity
 @Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
-public class Produto extends AbstractTimesTampEntity {
+public class Segmento extends AbstractTimesTampEntity {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -38,9 +38,6 @@ public class Produto extends AbstractTimesTampEntity {
 
 	@Column(nullable = false)
 	private String descricao;
-
-	@Column(nullable = false)
-	private String referencia;
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
 	@JoinColumn(nullable = false, name = "empresa")

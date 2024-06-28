@@ -1,6 +1,5 @@
 package br.com.ams.sys;
 
-
 import br.com.ams.sys.controller.LoginRequest;
 import br.com.ams.sys.controller.LoginResponse;
 import br.com.ams.sys.controller.ProfileResponse;
@@ -18,58 +17,42 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProfileControllerTest {
 
-    @Autowired
-    WebTestClient webTestClient;
+	@Autowired
+	WebTestClient webTestClient;
 
-    @Test
-    void shouldReturnProfileData() {
+	@Test
+	void shouldReturnProfileData() {
 
-        // given
-        LoginRequest loginRequest = new LoginRequest("adamk", "password");
-        LoginResponse loginResponse = webTestClient.post()
-                .uri("/login")
-                .body(BodyInserters.fromValue(loginRequest))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(LoginResponse.class)
-                .returnResult()
-                .getResponseBody();
-        String token = loginResponse.token();
+		// given
+		LoginRequest loginRequest = new LoginRequest("adamk", "password");
+		LoginResponse loginResponse = webTestClient.post().uri("/login").body(BodyInserters.fromValue(loginRequest))
+				.exchange().expectStatus().isOk().expectBody(LoginResponse.class).returnResult().getResponseBody();
+		String token = loginResponse.token();
 
-        // when
-        ProfileResponse response = webTestClient.get()
-                .uri("/profile")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(ProfileResponse.class)
-                .returnResult()
-                .getResponseBody();
+		// when
+		ProfileResponse response = webTestClient.get().uri("/profile")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token).exchange().expectStatus().isOk()
+				.expectBody(ProfileResponse.class).returnResult().getResponseBody();
 
-        assertThat(response).isNotNull();
-        assertThat(response.username()).isEqualTo("adamk");
-        assertThat(response.roles()).containsExactly("USER");
-    }
+		assertThat(response).isNotNull();
+		assertThat(response.username()).isEqualTo("adamk");
+		assertThat(response.roles()).containsExactly("USER");
+	}
 
-    @Test
-    void shouldReturnUnauthorizedWhenExpiredToken() {
+	@Test
+	void shouldReturnUnauthorizedWhenExpiredToken() {
 
-        // when / then
-        webTestClient.get()
-                .uri("/profile")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGFtayIsImlhdCI6MTcwNTE2MjU0OCwiZXhwIjoxNzA1MTY0MzQ4fQ.2Mn_R5Ia8iUyO660j7iV1KZnMicuSaVCMbpP9Ah9G3g")
-                .exchange()
-                .expectStatus().isUnauthorized();
-    }
+		// when / then
+		webTestClient.get().uri("/profile").header(HttpHeaders.AUTHORIZATION, "Bearer "
+				+ "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGFtayIsImlhdCI6MTcwNTE2MjU0OCwiZXhwIjoxNzA1MTY0MzQ4fQ.2Mn_R5Ia8iUyO660j7iV1KZnMicuSaVCMbpP9Ah9G3g")
+				.exchange().expectStatus().isUnauthorized();
+	}
 
-    @Test
-    void shouldReturnUnauthorizedWhenInvalidToken() {
+	@Test
+	void shouldReturnUnauthorizedWhenInvalidToken() {
 
-        // when / then
-        webTestClient.get()
-                .uri("/profile")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + "invalid token")
-                .exchange()
-                .expectStatus().isUnauthorized();
-    }
+		// when / then
+		webTestClient.get().uri("/profile").header(HttpHeaders.AUTHORIZATION, "Bearer " + "invalid token").exchange()
+				.expectStatus().isUnauthorized();
+	}
 }

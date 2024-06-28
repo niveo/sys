@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Basic;
@@ -25,12 +24,12 @@ public abstract class AbstractTimesTampEntity implements Serializable {
 
 	@Basic
 	@CreationTimestamp()
-	@Column
+	@Column(name = "cadastrado")
 	private ZonedDateTime dataCadastrado;
 
 	@Basic
 	@UpdateTimestamp
-	@Column
+	@Column(name = "alterado")
 	private ZonedDateTime dataAlterado;
 
 	@PrePersist

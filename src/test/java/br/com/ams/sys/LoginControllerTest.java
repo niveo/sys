@@ -1,7 +1,5 @@
 package br.com.ams.sys;
 
-
-
 import br.com.ams.sys.controller.LoginRequest;
 import br.com.ams.sys.controller.LoginResponse;
 import org.junit.jupiter.api.Test;
@@ -13,46 +11,36 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class LoginControllerTest {
 
-    @Autowired
-    WebTestClient webTestClient;
+	@Autowired
+	WebTestClient webTestClient;
 
-    @Test
-    void shouldLogin() {
+	@Test
+	void shouldLogin() {
 
-        // given
-        LoginRequest loginRequest = new LoginRequest("adamk", "password");
+		// given
+		LoginRequest loginRequest = new LoginRequest("adamk", "password");
 
-        // when
-        LoginResponse response = webTestClient.post()
-                .uri("/login")
-                .body(BodyInserters.fromValue(loginRequest))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(LoginResponse.class)
-                .returnResult()
-                .getResponseBody();
+		// when
+		LoginResponse response = webTestClient.post().uri("/login").body(BodyInserters.fromValue(loginRequest))
+				.exchange().expectStatus().isOk().expectBody(LoginResponse.class).returnResult().getResponseBody();
 
-        // then
-        assertThat(response).isNotNull();
-        assertThat(response.token()).isNotBlank();
-    }
+		// then
+		assertThat(response).isNotNull();
+		assertThat(response.token()).isNotBlank();
+	}
 
-    @Test
-    void shouldNotLoginWithWrongPassword() {
+	@Test
+	void shouldNotLoginWithWrongPassword() {
 
-        // given
-        LoginRequest loginRequest = new LoginRequest("adamk", "wrong password");
+		// given
+		LoginRequest loginRequest = new LoginRequest("adamk", "wrong password");
 
-        // when / then
-        webTestClient.post()
-                .uri("/login")
-                .body(BodyInserters.fromValue(loginRequest))
-                .exchange()
-                .expectStatus().isUnauthorized();
-    }
+		// when / then
+		webTestClient.post().uri("/login").body(BodyInserters.fromValue(loginRequest)).exchange().expectStatus()
+				.isUnauthorized();
+	}
 }

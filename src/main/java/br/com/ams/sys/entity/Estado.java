@@ -4,14 +4,11 @@ import java.io.Serial;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,11 +21,16 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
-@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
-public class Produto extends AbstractTimesTampEntity {
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "descricao", "sigla" }) })
+public class Estado extends AbstractTimesTampEntity {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
+
+	public Estado(String descricao, String sigla) {
+		this.descricao = descricao;
+		this.sigla = sigla;
+	}
 
 	@EqualsAndHashCode.Include
 	@Id
@@ -40,9 +42,5 @@ public class Produto extends AbstractTimesTampEntity {
 	private String descricao;
 
 	@Column(nullable = false)
-	private String referencia;
-
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
-	@JoinColumn(nullable = false, name = "empresa")
-	private Empresa empresa;
+	private String sigla;
 }

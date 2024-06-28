@@ -1,39 +1,24 @@
 package br.com.ams.sys.entity;
 
 import java.io.Serial;
+import java.util.List;
 
-import br.com.ams.sys.enuns.TipoPessoa;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString(of = { "codigo" })
 @Entity
 @Table
-public class Empresa extends AbstractTimesTampEntity {
+public class Empresa extends AbstractClient {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	@EqualsAndHashCode.Include
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
-	private Long codigo;
+	@ManyToMany(mappedBy = "empresas", targetEntity = Usuario.class)
+	private List<Usuario> usuarios;
 
-	@Column(unique = true, nullable = false)
-	private String documento;
-
-	@Column(nullable = false)
-	private String nome;
-
-	@Column(nullable = false)
-	private String razaoSocial;
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private TipoPessoa tipoPessoa = TipoPessoa.JURIDICA;
 }

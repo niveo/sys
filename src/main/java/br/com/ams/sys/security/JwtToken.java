@@ -1,10 +1,11 @@
 package br.com.ams.sys.security;
 
 
-import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import lombok.Getter;
 
 @Getter
 class JwtToken extends AbstractAuthenticationToken {

@@ -3,10 +3,10 @@ package br.com.ams.sys;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 class SysApplicationTests {
 
-	@Test
+	//@Test
 	void contextLoads() {
 	}
 

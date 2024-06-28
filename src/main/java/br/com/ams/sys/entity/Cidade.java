@@ -8,10 +8,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,8 +25,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
-@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
-public class Produto extends AbstractTimesTampEntity {
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "descricao", "estado" }) })
+public class Cidade extends AbstractTimesTampEntity {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -39,10 +40,8 @@ public class Produto extends AbstractTimesTampEntity {
 	@Column(nullable = false)
 	private String descricao;
 
-	@Column(nullable = false)
-	private String referencia;
-
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
-	@JoinColumn(nullable = false, name = "empresa")
-	private Empresa empresa;
+	// Unidirectional
+	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Estado.class, optional = false)
+	@JoinColumn(nullable = false, name = "estado")
+	private Estado estado;
 }
