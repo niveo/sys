@@ -17,11 +17,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Usuário vai selecionar qual empresa esta usando no momento do pos login ou no
+ * header da view?
+ */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
 @AllArgsConstructor
@@ -29,6 +34,7 @@ import lombok.ToString;
 @ToString(of = { "codigo" })
 @Entity
 @Table
+@Builder
 public class Usuario extends AbstractTimesTampEntity {
 
 	@Serial
@@ -58,5 +64,9 @@ public class Usuario extends AbstractTimesTampEntity {
 	@JoinTable(name = "usuario_has_clientes", joinColumns = @JoinColumn(name = "usuario"), inverseJoinColumns = @JoinColumn(name = "cliente"), uniqueConstraints = {
 			@UniqueConstraint(columnNames = { "usuario", "cliente" }) })
 	private List<Cliente> clientes;
+
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private List<Role> roles;
 
 }

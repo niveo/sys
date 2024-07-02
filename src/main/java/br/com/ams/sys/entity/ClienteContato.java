@@ -1,18 +1,19 @@
 package br.com.ams.sys.entity;
 
 import java.io.Serial;
+import java.util.Set;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,10 +26,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "descricao", "estado" }) }, indexes = {
-		@Index(columnList = "descricao"), @Index(columnList = "estado, descricao") })
-public class Cidade extends AbstractTimesTampEntity {
-
+public class ClienteContato extends AbstractTimesTampEntity {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
@@ -38,11 +36,19 @@ public class Cidade extends AbstractTimesTampEntity {
 	@Column
 	private Long codigo;
 
-	@Column(nullable = false)
-	private String descricao;
+	private String nome;
+	private String cargo;
+	private String observacao;
 
-	// Unidirectional
-	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Estado.class, optional = false)
-	@JoinColumn(nullable = false, name = "estado")
-	private Estado estado;
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column
+	private Set<String> telefones;
+
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column
+	private Set<String> emails;
+
+	@ManyToOne(targetEntity = Cliente.class)
+	@JoinColumn(name = "cliente", nullable = false)
+	private Cliente cliente;
 }

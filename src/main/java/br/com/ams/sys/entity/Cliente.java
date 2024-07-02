@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,6 +17,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,10 +38,6 @@ public class Cliente extends AbstractClient {
 	@Column
 	private String suframa;
 
-	@JdbcTypeCode(SqlTypes.JSON)
-	@Column
-	private Set<Contato> contatos;
-
 	// Unidirectional
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Empresa.class, optional = false)
 	@JoinColumn(nullable = false, name = "empresa")
@@ -49,5 +49,13 @@ public class Cliente extends AbstractClient {
 
 	@ManyToMany(mappedBy = "clientes", targetEntity = Usuario.class)
 	private List<Usuario> usuarios;
+
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, targetEntity = ClienteContato.class, orphanRemoval = true)
+	private List<ClienteContato> contatos;
+
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, targetEntity = ClienteEndereco.class, orphanRemoval = true)
+	private List<ClienteEndereco> enderecos;
 
 }
