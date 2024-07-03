@@ -25,8 +25,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import br.com.ams.sys.entity.UserDetailsImpl;
-import br.com.ams.sys.filters.UserAuthenticationFilter;
 import br.com.ams.sys.repository.UsuarioRepository;
+import br.com.ams.sys.security.JwtAuthenticationFilter;
 
 //https://medium.com/@felipeacelinoo/protegendo-sua-api-rest-com-spring-security-e-autenticando-usu%C3%A1rios-com-token-jwt-em-uma-aplica%C3%A7%C3%A3o-d70e5b0331f9
 //https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
@@ -36,15 +36,15 @@ import br.com.ams.sys.repository.UsuarioRepository;
 public class WebSecurityConfig {
 
 	@Autowired
-	private UsuarioRepository usuarioRepository;
+	UsuarioRepository usuarioRepository;
 
 	@Autowired
-	private UserAuthenticationFilter userAuthenticationFilter;
+	JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = { "/usuarios/login", "/usuarios" };
 
 	// Endpoints que requerem autenticação para serem acessados
-	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test" };
+	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test", "/clientes" };
 
 	// Endpoints que só podem ser acessador por usuários com permissão de cliente
 	public static final String[] ENDPOINTS_CUSTOMER = { "/usuarios/test/customer" };
@@ -63,9 +63,12 @@ public class WebSecurityConfig {
 				.requestMatchers(ENDPOINTS_ADMIN).hasRole("ADMINISTRATOR").requestMatchers(ENDPOINTS_CUSTOMER)
 				.hasRole("CUSTOMER").anyRequest().denyAll());
 
-		http.sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
-				.addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		http.sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
+		
+		http.authenticationProvider(authenticationProvider());
 
+		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+ 
 		return http.build();
 	}
 

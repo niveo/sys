@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.com.ams.sys.entity.Bairro;
 import br.com.ams.sys.entity.Cidade;
@@ -20,7 +21,9 @@ import br.com.ams.sys.entity.Empresa;
 import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.entity.Estado;
 import br.com.ams.sys.entity.Usuario;
+import br.com.ams.sys.enuns.RoleName;
 import br.com.ams.sys.enuns.TipoPessoa;
+import br.com.ams.sys.records.UsuarioCriarDto;
 import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
@@ -62,8 +65,11 @@ public class SysApplication implements CommandLineRunner {
 	@Autowired
 	private UsuarioService usuarioService;
 
+	@Autowired
+	PasswordEncoder passwordEncoder;
+
 	private void name() {
-		/*try {
+		try {
 			var estado = estadoService.salvar(new Estado("SAO PAULO", "SP"));
 
 			var bairro = new Bairro();
@@ -133,15 +139,16 @@ public class SysApplication implements CommandLineRunner {
 			cliente2.setEndereco(endereco);
 			cliente2 = clienteService.salvar(cliente2);
 
-			var usuario = new Usuario();
-			usuario.setEmail("sandnine@gmail.com");
-			usuario.setNome("ALDINEY");
-			usuario.setSenha("123456");
+			usuarioService.criar(new UsuarioCriarDto("teste@gmail.com", "123456", RoleName.ROLE_ADMINISTRATOR));
+
+			var usuario = usuarioService.obterCodigo(1L);
 			usuario.setClientes(List.of(cliente2));
 			usuario.setEmpresas(List.of(empresa, empresa2));
-			usuario = usuarioService.salvar(usuario);
+
+			usuarioService.salvar(usuario);
+
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
 }
