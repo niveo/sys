@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.ams.sys.entity.Cliente;
-import br.com.ams.sys.records.ClienteDto;
+import br.com.ams.sys.records.ClienteListaDto;
 
 @Transactional(readOnly = true)
 public interface ClienteRepository extends JpaRepository<Cliente, Long> { 

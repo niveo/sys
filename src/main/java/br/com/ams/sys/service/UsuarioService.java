@@ -7,13 +7,13 @@ import br.com.ams.sys.records.LoginResponse;
 import br.com.ams.sys.records.UsuarioCriarDto;
 
 public interface UsuarioService {
-	Usuario salvar(Usuario entidade) throws Exception;
+	Usuario save(Usuario entidade) throws Exception;
 
 	void criar(UsuarioCriarDto entidade);
 
-	Usuario obterCodigo(Long codigo) throws Exception;
+	Usuario findByCodigo(Long codigo) throws Exception;
 
-	void remover(Long codigo) throws Exception;
+	void deleteByCodigo(Long codigo) throws Exception;
 
 	LoginResponse autenticar(LoginRequest record);
 }

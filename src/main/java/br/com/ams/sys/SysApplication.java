@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.com.ams.sys.entity.Bairro;
@@ -89,15 +91,26 @@ public class SysApplication implements CommandLineRunner {
 			empresa.setNome("Teste");
 			empresa.setDocumento("33592119877");
 			empresa.setRazaoSocial("Teste");
-			empresa = empresaService.salvar(empresa);
+			empresa = empresaService.save(empresa);
 
 			var empresa2 = new Empresa();
 			empresa2.setEndereco(endereco);
 			empresa2.setTipoPessoa(TipoPessoa.JURIDICA);
 			empresa2.setNome("Teste2");
+			empresa2.setEmail("sandnine@gmail.com");
 			empresa2.setDocumento("335921198772");
 			empresa2.setRazaoSocial("Teste2");
-			empresa2 = empresaService.salvar(empresa2);
+			empresa2 = empresaService.save(empresa2);
+
+			var empresa3 = new Empresa();
+			empresa3.setEndereco(endereco);
+			empresa3.setTipoPessoa(TipoPessoa.JURIDICA);
+			empresa3.setNome("Teste2");
+			empresa3.setDocumento("335921198772X");
+			empresa3.setEmail("sandnine@gmail.com");
+			empresa3.setTelefone("11950514363");
+			empresa3.setRazaoSocial("Teste2");
+			empresa3 = empresaService.save(empresa3);
 
 			for (int i = 0; i < 100; i++) {
 
@@ -127,7 +140,7 @@ public class SysApplication implements CommandLineRunner {
 				contato2.setEmails(new HashSet<String>(List.of("sandnine@gmail.com", "sandnine@gmail.com")));
 				cliente.setContatos(List.of(contato, contato2));
 
-				cliente = clienteService.salvar(cliente);
+				cliente = clienteService.save(cliente);
 			}
 
 			var cliente2 = new Cliente();
@@ -137,15 +150,17 @@ public class SysApplication implements CommandLineRunner {
 			cliente2.setRazaoSocial("Teste2");
 			cliente2.setTipoPessoa(TipoPessoa.JURIDICA);
 			cliente2.setEndereco(endereco);
-			cliente2 = clienteService.salvar(cliente2);
+			cliente2 = clienteService.save(cliente2);
 
 			usuarioService.criar(new UsuarioCriarDto("teste@gmail.com", "123456", RoleName.ROLE_ADMINISTRATOR));
 
-			var usuario = usuarioService.obterCodigo(1L);
+			var usuario = usuarioService.findByCodigo(1L);
 			usuario.setClientes(List.of(cliente2));
 			usuario.setEmpresas(List.of(empresa, empresa2));
 
-			usuarioService.salvar(usuario);
+			usuarioService.save(usuario);
+
+			empresaService.obterTodos(PageRequest.of(0, 10), "{\"codigo\": \"1\"}");
 
 		} catch (Exception e) {
 			e.printStackTrace();

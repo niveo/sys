@@ -44,7 +44,8 @@ public class WebSecurityConfig {
 	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = { "/usuarios/login", "/usuarios" };
 
 	// Endpoints que requerem autenticação para serem acessados
-	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test", "/clientes" };
+	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test", "/clientes",
+			"/empresas", "/empresas/*" };
 
 	// Endpoints que só podem ser acessador por usuários com permissão de cliente
 	public static final String[] ENDPOINTS_CUSTOMER = { "/usuarios/test/customer" };
@@ -64,11 +65,11 @@ public class WebSecurityConfig {
 				.hasRole("CUSTOMER").anyRequest().denyAll());
 
 		http.sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
-		
+
 		http.authenticationProvider(authenticationProvider());
 
 		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
- 
+
 		return http.build();
 	}
 

@@ -5,13 +5,17 @@ import org.springframework.data.domain.Pageable;
 
 import br.com.ams.sys.entity.Cliente;
 import br.com.ams.sys.records.ClienteDto;
+import br.com.ams.sys.records.ClienteListaDto;
 
 public interface ClienteService {
-	Cliente salvar(Cliente entidade) throws Exception;
+	Cliente save(Cliente entidade) throws Exception;
 
-	Cliente obterCodigo(Long codigo) throws Exception;
+	Cliente findByCodigo(Long codigo) throws Exception;
 
-	Page<ClienteDto> obterTodos(Pageable pageable) throws Exception;
+	void deleteByCodigo(Long codigo) throws Exception;
 
-	void remover(Long codigo) throws Exception;
+	Page<ClienteListaDto> obterTodos(Pageable pageable) throws Exception;
+
+	ClienteDto obterCodigo(Long codigo) throws Exception;
+
 }

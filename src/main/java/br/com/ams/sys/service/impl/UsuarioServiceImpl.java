@@ -38,7 +38,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	private PasswordEncoder passwordEncoder;
 
 	@Override
-	public Usuario salvar(Usuario request) throws Exception {
+	public Usuario save(Usuario request) throws Exception {
 		return usuarioRepository.save(request);
 	}
 
@@ -50,13 +50,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	public Usuario obterCodigo(Long codigo) throws Exception {
+	public Usuario findByCodigo(Long codigo) throws Exception {
 		return this.usuarioRepository.findById(codigo)
 				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));
 	}
 
 	@Override
-	public void remover(Long codigo) throws Exception {
+	public void deleteByCodigo(Long codigo) throws Exception {
 		this.usuarioRepository.deleteById(codigo);
 	}
 
