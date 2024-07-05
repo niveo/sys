@@ -3,6 +3,7 @@ package br.com.ams.sys.config;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
@@ -12,9 +13,14 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Configuration
 @EnableAutoConfiguration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+	@Autowired
+	ObjectMapper objectMapper;
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -32,7 +38,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	public MappingJackson2HttpMessageConverter jacksonMessageConverter() {
 		MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
-		// messageConverter.setObjectMapper(objectMapper);
+		messageConverter.setObjectMapper(objectMapper);
 		return messageConverter;
 
 	}

@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
+@Builder
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "descricao", "estado" }) }, indexes = {
 		@Index(columnList = "descricao"), @Index(columnList = "estado, descricao") })
 public class Cidade extends AbstractTimesTampEntity {

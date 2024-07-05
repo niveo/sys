@@ -8,4 +8,8 @@ services:
       POSTGRES_DB: "sysdb"
     ports:
       - "5432:5432"
-
+  redis:
+    image: redis
+    command: redis-server --requirepass 123456
+    ports:
+      - "6379:6379"

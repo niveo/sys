@@ -1,11 +1,16 @@
 package br.com.ams.sys.service;
 
+import java.util.List;
+
 import br.com.ams.sys.entity.Bairro;
+import br.com.ams.sys.records.BairroDto;
 
 public interface BairroService {
-	Bairro salvar(Bairro entidade) throws Exception;
+	Bairro save(Bairro entidade) throws Exception;
 
-	Bairro obterCodigo(Long codigo) throws Exception;
+	Bairro findByCodigo(Long codigo) throws Exception;
 
-	void remover(Long codigo) throws Exception;
+	void deleteByCodigo(Long codigo) throws Exception;
+
+	public List<BairroDto> pesquisarDescricao(String descricao);
 }
