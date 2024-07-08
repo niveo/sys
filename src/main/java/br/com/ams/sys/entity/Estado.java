@@ -1,7 +1,8 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
+import java.util.List;
 
+import br.com.ams.sys.enuns.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,13 +11,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(of = { "codigo" })
@@ -24,13 +28,7 @@ import lombok.ToString;
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "descricao", "sigla" }) })
 public class Estado extends AbstractTimesTampEntity {
 
-	@Serial
 	private static final long serialVersionUID = 1L;
-
-	public Estado(String descricao, String sigla) {
-		this.descricao = descricao;
-		this.sigla = sigla;
-	}
 
 	@EqualsAndHashCode.Include
 	@Id

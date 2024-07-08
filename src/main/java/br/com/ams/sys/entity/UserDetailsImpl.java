@@ -1,6 +1,6 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
+
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -13,7 +13,7 @@ import lombok.Getter;
 @Getter
 public class UserDetailsImpl implements UserDetails {
 
-	@Serial
+	
 	private static final long serialVersionUID = 1L;
 
 	private Usuario usuario;

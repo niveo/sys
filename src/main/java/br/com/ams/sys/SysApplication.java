@@ -31,6 +31,7 @@ import br.com.ams.sys.enuns.TipoPessoa;
 import br.com.ams.sys.records.UsuarioCriarDto;
 import br.com.ams.sys.repository.BairroRepository;
 import br.com.ams.sys.repository.CidadeRepository;
+import br.com.ams.sys.repository.EstadoRepository;
 import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
@@ -73,6 +74,9 @@ public class SysApplication implements CommandLineRunner {
 	private UsuarioService usuarioService;
 
 	@Autowired
+	private EstadoRepository estadoRepository;
+
+	@Autowired
 	private CidadeRepository cidadeRepository;
 
 	@Autowired
@@ -85,9 +89,18 @@ public class SysApplication implements CommandLineRunner {
 	private ObjectMapper objectMapper;
 
 	@Transactional(propagation = Propagation.REQUIRED)
+	private void registrarEstados() throws Exception {
+		try {
+			estadoRepository.saveAll(listarEstados());
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
 	private Estado registrarCidades() throws Exception {
 		try {
-			var estado = estadoService.salvar(new Estado("SAO PAULO", "SP"));
+			var estado = estadoRepository.findAll().stream().filter(f -> f.getSigla().equals("SP")).findFirst().get();
 			cidadeRepository.saveAll(listaCidade(estado));
 			return estado;
 		} catch (Exception e) {
@@ -107,43 +120,20 @@ public class SysApplication implements CommandLineRunner {
 	private void name() {
 		try {
 
+			registrarEstados();
 			registrarBairros();
-			var estado = registrarCidades();
+			registrarCidades();
 
-			var bairro = new Bairro();
-			bairro.setDescricao("TESTE");
-			bairro = bairroService.save(bairro);
-
-			var cidade = cidadeService.save(Cidade.builder().descricao("TESTE").estado(estado).build());
+			var cidade = cidadeRepository.getOne(1L);
+			var bairro = bairroRepository.getOne(1L);
 
 			var endereco = new Endereco("Rua Teste", "1", "09980200", null, cidade, bairro);
 
-			var empresa = new Empresa();
-			empresa.setEndereco(endereco);
-			empresa.setTipoPessoa(TipoPessoa.JURIDICA);
-			empresa.setNome("Teste");
-			empresa.setDocumento("33592119877");
-			empresa.setRazaoSocial("Teste");
-			empresa = empresaService.save(empresa);
+			var empresa = empresaService.save(Empresa.builder().endereco(endereco).tipoPessoa(TipoPessoa.JURIDICA)
+					.nome("Teste").documento("33592119877").razaoSocial("Teste").build());
 
-			var empresa2 = new Empresa();
-			empresa2.setEndereco(endereco);
-			empresa2.setTipoPessoa(TipoPessoa.JURIDICA);
-			empresa2.setNome("Teste2");
-			empresa2.setEmail("sandnine@gmail.com");
-			empresa2.setDocumento("335921198772");
-			empresa2.setRazaoSocial("Teste2");
-			empresa2 = empresaService.save(empresa2);
-
-			var empresa3 = new Empresa();
-			empresa3.setEndereco(endereco);
-			empresa3.setTipoPessoa(TipoPessoa.JURIDICA);
-			empresa3.setNome("Teste2");
-			empresa3.setDocumento("335921198772X");
-			empresa3.setEmail("sandnine@gmail.com");
-			empresa3.setTelefone("11950514363");
-			empresa3.setRazaoSocial("Teste2");
-			empresa3 = empresaService.save(empresa3);
+			var empresa2 = empresaService.save(Empresa.builder().endereco(endereco).tipoPessoa(TipoPessoa.JURIDICA)
+					.nome("Teste2").documento("335921198772").razaoSocial("Teste2").build());
 
 			for (int i = 0; i < 100; i++) {
 
@@ -155,8 +145,8 @@ public class SysApplication implements CommandLineRunner {
 				cliente.setTipoPessoa(TipoPessoa.JURIDICA);
 				cliente.setEndereco(endereco);
 
-				cliente.setEnderecos(
-						List.of(new ClienteEndereco(cliente, endereco), new ClienteEndereco(cliente, endereco)));
+				cliente.setEnderecos(List.of(ClienteEndereco.builder().cliente(cliente).endereco(endereco).build(),
+						ClienteEndereco.builder().cliente(cliente).endereco(endereco).build()));
 
 				var contato = new ClienteContato();
 				contato.setNome("TESTE");
@@ -173,7 +163,7 @@ public class SysApplication implements CommandLineRunner {
 				contato2.setEmails(new HashSet<String>(List.of("sandnine@gmail.com", "sandnine@gmail.com")));
 				cliente.setContatos(List.of(contato, contato2));
 
-				cliente = clienteService.save(cliente);
+				// cliente = clienteService.save(cliente);
 			}
 
 			var cliente2 = new Cliente();
@@ -198,6 +188,19 @@ public class SysApplication implements CommandLineRunner {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private List<Estado> listarEstados() throws Exception {
+		var tree = objectMapper.readTree(new File("src/main/resources/estados.json"));
+		var it = tree.elements();
+		var lista = new ArrayList<Estado>();
+		while (it.hasNext()) {
+			var ob = it.next();
+			String nome = ob.get("nome").asText();
+			String sigla = ob.get("sigla").asText();
+			lista.add(Estado.builder().descricao(nome).sigla(sigla).build());
+		}
+		return lista;
 	}
 
 	private List<Bairro> listaBairro() throws Exception {

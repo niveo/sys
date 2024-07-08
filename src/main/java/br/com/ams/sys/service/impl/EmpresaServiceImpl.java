@@ -1,11 +1,16 @@
 package br.com.ams.sys.service.impl;
 
 import java.util.ArrayList;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.Provider;
+import org.modelmapper.record.RecordModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,16 +18,23 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.ams.sys.entity.AbstractClient;
+import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.entity.Cliente;
 import br.com.ams.sys.entity.Empresa;
+import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.records.ClienteDto;
 import br.com.ams.sys.records.EmpresaDto;
 import br.com.ams.sys.records.EmpresaListaDto;
+import br.com.ams.sys.records.EmpresaRegistrarDto;
+import br.com.ams.sys.records.EmpresaRegistrarEnderecoDto;
 import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.repository.EmpresaRepository;
+import br.com.ams.sys.service.BairroService;
+import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.EmpresaService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,7 +44,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 @Service
-@Transactional
 public class EmpresaServiceImpl implements EmpresaService {
 
 	@PersistenceContext
@@ -41,12 +52,42 @@ public class EmpresaServiceImpl implements EmpresaService {
 	@Autowired
 	private EmpresaRepository empresaRepository;
 
+	@Autowired
+	private CidadeService cidadeService;
+
+	@Autowired
+	private BairroService bairroService;
+
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Empresa save(Empresa entidade) throws Exception {
 		return empresaRepository.save(entidade);
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public EmpresaDto save(EmpresaRegistrarDto entidade) throws Exception {
+		
+		System.out.println(entidade);
+
+		var cidade = cidadeService.findByCodigo(entidade.endereco().cidade().codigo());
+		var bairro = bairroService.findByCodigo(entidade.endereco().bairro().codigo());
+
+		Empresa registrar;
+		if (entidade.codigo() != null) {
+			var emp = empresaRepository.findById(entidade.codigo()).get();
+			registrar = entidade.toEmpresa(emp, cidade, bairro);
+		} else {
+			registrar = entidade.toEmpresa(new Empresa(), cidade, bairro);
+		}
+
+		registrar = save(registrar);
+
+		return obterCodigo(registrar.getCodigo());
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Empresa findByCodigo(Long codigo) throws Exception {
 		return this.empresaRepository.findById(codigo)
 				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));

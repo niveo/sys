@@ -1,6 +1,6 @@
 package br.com.ams.sys.security;
 
-import java.io.Serial;
+
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter
 class JwtToken extends AbstractAuthenticationToken {
 
-	@Serial
+	
 	private static final long serialVersionUID = 1L;
 	private final String token;
 	private final UserDetails principal;

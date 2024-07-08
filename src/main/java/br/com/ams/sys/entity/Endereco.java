@@ -1,6 +1,6 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
+
 import java.io.Serializable;
 
 import jakarta.persistence.Column;
@@ -9,16 +9,18 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Embeddable
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Endereco implements Serializable {
 
-	@Serial
+	
 	private static final long serialVersionUID = 1L;
 
 	@Column(nullable = false)

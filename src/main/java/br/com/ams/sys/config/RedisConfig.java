@@ -18,8 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 @EnableScheduling
 public class RedisConfig {
 	public static final String CACHE_CIDADE_KEY = "cidades";
+	public static final String CACHE_ESTADOS_KEY = "estados";
+	public static final String CACHE_BAIRRO_KEY = "bairros";
 
-	@CacheEvict(allEntries = true, value = CACHE_CIDADE_KEY)
+	@CacheEvict(allEntries = true, value = { CACHE_ESTADOS_KEY, CACHE_BAIRRO_KEY, CACHE_CIDADE_KEY })
 	@Scheduled(fixedDelayString = "${cache.ttl.ms}")
 	public void evictCache() {
 		log.info("Cache cleared");

@@ -1,6 +1,5 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -10,16 +9,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Data
-@Entity
+@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Table
 public class Empresa extends AbstractClient {
 
-	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@ManyToMany(mappedBy = "empresas", targetEntity = Usuario.class)

@@ -1,7 +1,10 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
 
+
+import java.util.List;
+
+import br.com.ams.sys.enuns.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,13 +16,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(of = { "codigo" })
@@ -27,7 +33,7 @@ import lombok.ToString;
 @Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
 public class Produto extends AbstractTimesTampEntity {
 
-	@Serial
+	
 	private static final long serialVersionUID = 1L;
 
 	@EqualsAndHashCode.Include

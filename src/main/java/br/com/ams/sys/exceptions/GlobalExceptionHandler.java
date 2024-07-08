@@ -2,6 +2,7 @@ package br.com.ams.sys.exceptions;
 
 import java.security.SignatureException;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,10 +23,15 @@ public class GlobalExceptionHandler {
 		// TODO send this stack trace to an observability tool
 		exception.printStackTrace();
 
+		if (exception instanceof DataIntegrityViolationException) {
+			errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
+			errorDetail.setProperty("description", "Violação da integridade dos dados fornecidos.");
+			return errorDetail;
+		}
+
 		if (exception instanceof BadCredentialsException) {
 			errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());
 			errorDetail.setProperty("description", "The username or password is incorrect");
-
 			return errorDetail;
 		}
 

@@ -1,7 +1,8 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
+import java.util.List;
 
+import br.com.ams.sys.enuns.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,7 +32,6 @@ import lombok.ToString;
 		@Index(columnList = "descricao"), @Index(columnList = "estado, descricao") })
 public class Cidade extends AbstractTimesTampEntity {
 
-	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@EqualsAndHashCode.Include

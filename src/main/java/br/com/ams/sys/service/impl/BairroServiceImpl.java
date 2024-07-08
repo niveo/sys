@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Bairro;
+import br.com.ams.sys.records.BairroCriarDto;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.repository.BairroRepository;
 import br.com.ams.sys.service.BairroService;
@@ -42,7 +43,13 @@ public class BairroServiceImpl implements BairroService {
 		this.bairroRepository.deleteById(codigo);
 	}
 
-	@Cacheable(value = RedisConfig.CACHE_CIDADE_KEY)
+	@Override
+	public BairroDto criar(BairroCriarDto entity) throws Exception {
+		var bairro = bairroRepository.save(Bairro.builder().descricao(entity.descricao()).build());
+		return obterCodigo(bairro.getCodigo());
+	}
+
+	@Cacheable(value = RedisConfig.CACHE_BAIRRO_KEY)
 	public List<BairroDto> pesquisarDescricao(String descricao) {
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(BairroDto.class);
@@ -50,8 +57,23 @@ public class BairroServiceImpl implements BairroService {
 
 		var select = cb.construct(BairroDto.class, root.get("codigo"), root.get("descricao"));
 
-		query.select(select).where(cb.like(root.get("descricao"), "%" + descricao.toUpperCase() + "%"));
+		query.select(select).where(cb.like(root.get("descricao"), "%" + descricao.toUpperCase() + "%"))
+				.orderBy(cb.asc(root.get("descricao")));
 
 		return entityManager.createQuery(query).getResultList();
+	}
+
+	public BairroDto obterCodigo(Long codigo) {
+
+		var cb = entityManager.getCriteriaBuilder();
+		var query = cb.createQuery(BairroDto.class);
+		var root = query.from(Bairro.class);
+
+		var select = cb.construct(BairroDto.class, root.get("codigo"), root.get("descricao"));
+
+		query.select(select).where(cb.equal(root.get("codigo"), codigo));
+		;
+
+		return entityManager.createQuery(query).getSingleResult();
 	}
 }

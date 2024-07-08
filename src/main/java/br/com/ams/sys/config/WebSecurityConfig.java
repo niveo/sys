@@ -53,7 +53,7 @@ public class WebSecurityConfig {
 
 	// Endpoints que requerem autenticação para serem acessados
 	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test", "/clientes", "/empresas",
-			"/empresas/*", "/cidades/*", "/bairros/*" };
+			"/empresas/*", "/cidades", "/cidades/*", "/bairros", "/bairros/*", "/estados", "/estados/*" };
 
 	// Endpoints que só podem ser acessador por usuários com permissão de cliente
 	public static final String[] ENDPOINTS_CUSTOMER = { "/usuarios/test/customer" };

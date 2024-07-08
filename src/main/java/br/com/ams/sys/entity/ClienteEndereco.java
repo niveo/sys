@@ -1,8 +1,10 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.util.List;
 
+import br.com.ams.sys.enuns.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -12,19 +14,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
 public class ClienteEndereco extends AbstractTimesTampEntity {
-	@Serial
+
 	private static final long serialVersionUID = 1L;
 
 	@EqualsAndHashCode.Include
@@ -32,11 +37,6 @@ public class ClienteEndereco extends AbstractTimesTampEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column
 	private Long codigo;
-
-	public ClienteEndereco(Cliente cliente, Endereco endereco) {
-		this.cliente = cliente;
-		this.endereco = endereco;
-	}
 
 	@Embedded
 	private Endereco endereco;

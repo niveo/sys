@@ -1,7 +1,6 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serial;
-
+import br.com.ams.sys.enuns.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
 @Builder
@@ -26,7 +26,6 @@ import lombok.ToString;
 @Table(indexes = { @Index(columnList = "descricao") })
 public class Bairro extends AbstractTimesTampEntity {
 
-	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@EqualsAndHashCode.Include
