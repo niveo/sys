@@ -43,10 +43,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	public void criar(UsuarioCriarDto request) {
+	public Long criar(UsuarioCriarDto request) {
 		var usuario = Usuario.builder().email(request.email()).senha(passwordEncoder.encode(request.senha()))
 				.roles(List.of(Role.builder().name(request.role()).build())).nome(request.email()).build();
-		usuarioRepository.save(usuario);
+		return usuarioRepository.save(usuario).getCodigo();
 	}
 
 	@Override

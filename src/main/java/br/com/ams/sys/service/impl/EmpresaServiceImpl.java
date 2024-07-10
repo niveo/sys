@@ -67,8 +67,6 @@ public class EmpresaServiceImpl implements EmpresaService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public EmpresaDto save(EmpresaRegistrarDto entidade) throws Exception {
-		
-		System.out.println(entidade);
 
 		var cidade = cidadeService.findByCodigo(entidade.endereco().cidade().codigo());
 		var bairro = bairroService.findByCodigo(entidade.endereco().bairro().codigo());
@@ -80,6 +78,8 @@ public class EmpresaServiceImpl implements EmpresaService {
 		} else {
 			registrar = entidade.toEmpresa(new Empresa(), cidade, bairro);
 		}
+
+		registrar.getEndereco().setCep(registrar.getEndereco().getCep().replace("-", "").trim());
 
 		registrar = save(registrar);
 
@@ -94,7 +94,7 @@ public class EmpresaServiceImpl implements EmpresaService {
 	}
 
 	@Override
-	public void deleteByCodigo(Long codigo) throws Exception {
+	public void deleteByCodigo(Long codigo) {
 		this.empresaRepository.deleteById(codigo);
 	}
 

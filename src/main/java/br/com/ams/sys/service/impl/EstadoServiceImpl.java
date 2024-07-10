@@ -2,6 +2,7 @@ package br.com.ams.sys.service.impl;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class EstadoServiceImpl implements EstadoService {
 	@Autowired
 	private EstadoRepository estadoRepository;
@@ -27,7 +29,12 @@ public class EstadoServiceImpl implements EstadoService {
 	private EntityManager entityManager;
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Estado save(Estado entidade) throws Exception {
+		if (StringUtils.isNotEmpty(entidade.getDescricao()))
+			entidade.setDescricao(entidade.getDescricao().toUpperCase());
+		if (StringUtils.isNotEmpty(entidade.getSigla()))
+			entidade.setSigla(entidade.getSigla().toUpperCase());
 		return estadoRepository.save(entidade);
 	}
 
@@ -38,7 +45,8 @@ public class EstadoServiceImpl implements EstadoService {
 	}
 
 	@Override
-	public void deleteByCodigo(Long codigo) throws Exception {
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void deleteByCodigo(Long codigo) {
 		this.estadoRepository.deleteById(codigo);
 	}
 
@@ -54,6 +62,11 @@ public class EstadoServiceImpl implements EstadoService {
 		query.select(select).orderBy(cb.asc(root.get("descricao")));
 
 		return entityManager.createQuery(query).getResultList();
+	}
+
+	@Override
+	public Estado findBySigla(String sigla) throws Exception {
+		return this.estadoRepository.findBySigla(sigla);
 	}
 
 }

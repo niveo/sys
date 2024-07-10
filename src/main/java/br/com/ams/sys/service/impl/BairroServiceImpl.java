@@ -2,9 +2,11 @@ package br.com.ams.sys.service.impl;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.ams.sys.config.RedisConfig;
@@ -18,7 +20,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class BairroServiceImpl implements BairroService {
 
 	@Autowired
@@ -28,7 +30,10 @@ public class BairroServiceImpl implements BairroService {
 	private EntityManager entityManager;
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Bairro save(Bairro entidade) throws Exception {
+		if (StringUtils.isNotEmpty(entidade.getDescricao()))
+			entidade.setDescricao(entidade.getDescricao().toUpperCase());
 		return bairroRepository.save(entidade);
 	}
 
@@ -39,13 +44,15 @@ public class BairroServiceImpl implements BairroService {
 	}
 
 	@Override
-	public void deleteByCodigo(Long codigo) throws Exception {
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void deleteByCodigo(Long codigo) {
 		this.bairroRepository.deleteById(codigo);
 	}
 
 	@Override
-	public BairroDto criar(BairroCriarDto entity) throws Exception {
-		var bairro = bairroRepository.save(Bairro.builder().descricao(entity.descricao()).build());
+	@Transactional(propagation = Propagation.REQUIRED)
+	public BairroDto save(BairroCriarDto entity) throws Exception {
+		var bairro = save(Bairro.builder().descricao(entity.descricao()).build());
 		return obterCodigo(bairro.getCodigo());
 	}
 
@@ -63,6 +70,20 @@ public class BairroServiceImpl implements BairroService {
 		return entityManager.createQuery(query).getResultList();
 	}
 
+	public BairroDto pesquisarDescricaoSingle(String descricao) {
+		var cb = entityManager.getCriteriaBuilder();
+		var query = cb.createQuery(BairroDto.class);
+		var root = query.from(Bairro.class);
+
+		var select = cb.construct(BairroDto.class, root.get("codigo"), root.get("descricao"));
+
+		query.select(select).where(cb.equal(root.get("descricao"), descricao.toUpperCase()))
+				.orderBy(cb.asc(root.get("descricao")));
+
+		return entityManager.createQuery(query).setMaxResults(1).getSingleResult();
+	}
+
+	@Override
 	public BairroDto obterCodigo(Long codigo) {
 
 		var cb = entityManager.getCriteriaBuilder();
@@ -72,7 +93,6 @@ public class BairroServiceImpl implements BairroService {
 		var select = cb.construct(BairroDto.class, root.get("codigo"), root.get("descricao"));
 
 		query.select(select).where(cb.equal(root.get("codigo"), codigo));
-		;
 
 		return entityManager.createQuery(query).getSingleResult();
 	}
