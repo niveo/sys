@@ -1,5 +1,7 @@
 package br.com.ams.sys.records;
 
+import java.util.Set;
+
 import br.com.ams.sys.entity.Bairro;
 import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.entity.Cliente;
@@ -9,7 +11,8 @@ import lombok.Builder;
 
 @Builder
 public record ClienteRegistrarDto(Long codigo, String documento, String nome, String razaoSocial, String observacao,
-		String telefone, String email, String inscricaoEstadual, TipoPessoa tipoPessoa, EnderecoRegistrarDto endereco) {
+		String telefone, String email, String inscricaoEstadual, TipoPessoa tipoPessoa, EnderecoDto endereco,
+		Set<ClienteContatoDto> contatos) {
 
 	public Cliente toCliente(Cliente empresa, Cidade cidade, Bairro bairro) {
 		return empresa.toBuilder().codigo(codigo).tipoPessoa(tipoPessoa).documento(documento).nome(nome)

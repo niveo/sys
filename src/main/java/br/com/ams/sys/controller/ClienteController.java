@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,10 +28,11 @@ public class ClienteController {
 	private ClienteService clienteService;
 
 	@GetMapping
-	PagedModel<?> obterTodos(@RequestParam(name = "page", defaultValue = "0") Integer page,
+	PagedModel<?> obterTodos(@RequestHeader("empresa") Long empresa,
+			@RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "condicoes") String condicoes) throws Exception {
 		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS_EMPRESAS);
-		var clientes = clienteService.obterTodos(pageable, condicoes);
+		var clientes = clienteService.obterTodos(empresa, pageable, condicoes);
 		return new PagedModel<>(clientes);
 	}
 

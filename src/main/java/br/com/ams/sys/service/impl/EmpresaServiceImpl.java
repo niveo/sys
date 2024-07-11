@@ -18,7 +18,6 @@ import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.records.EmpresaDto;
 import br.com.ams.sys.records.EmpresaListaDto;
-import br.com.ams.sys.records.EmpresaRegistrarDto;
 import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.repository.EmpresaRepository;
@@ -55,7 +54,7 @@ public class EmpresaServiceImpl implements EmpresaService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public EmpresaDto save(EmpresaRegistrarDto entidade) throws Exception {
+	public EmpresaDto save(EmpresaDto entidade) throws Exception {
 
 		var cidade = cidadeService.findByCodigo(entidade.endereco().cidade().codigo());
 		var bairro = bairroService.findByCodigo(entidade.endereco().bairro().codigo());
@@ -75,7 +74,7 @@ public class EmpresaServiceImpl implements EmpresaService {
 		return obterCodigo(registrar.getCodigo());
 	}
 
-	@Override 
+	@Override
 	public Empresa findByCodigo(Long codigo) throws Exception {
 		return this.empresaRepository.findById(codigo)
 				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));
@@ -167,6 +166,10 @@ public class EmpresaServiceImpl implements EmpresaService {
 		while (itFiltros.hasNext()) {
 			var name = itFiltros.next();
 			var node = filtros.get(name);
+
+			if (node.asText().isEmpty())
+				continue;
+
 			if ("codigo".equals(name)) {
 				var predValue = cb.equal(root.get("codigo"), node.asLong());
 				predicates.add(predValue);

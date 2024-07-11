@@ -38,7 +38,7 @@ public class Cliente extends AbstractClient {
 	private String suframa;
 
 	// Unidirectional
-	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Empresa.class, optional = false)
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
 	@JoinColumn(nullable = false, name = "empresa")
 	private Empresa empresa;
 
@@ -46,15 +46,15 @@ public class Cliente extends AbstractClient {
 	@JoinColumn(name = "segmento")
 	private Segmento segmento;
 
-	@ManyToMany(mappedBy = "clientes", targetEntity = Usuario.class)
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "clientes", targetEntity = Usuario.class)
 	private List<Usuario> usuarios;
 
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, targetEntity = ClienteContato.class, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "cliente", cascade = CascadeType.ALL, targetEntity = ClienteContato.class, orphanRemoval = true)
 	private List<ClienteContato> contatos;
 
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, targetEntity = ClienteEndereco.class, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "cliente", cascade = CascadeType.ALL, targetEntity = ClienteEndereco.class, orphanRemoval = true)
 	private List<ClienteEndereco> enderecos;
 
 }

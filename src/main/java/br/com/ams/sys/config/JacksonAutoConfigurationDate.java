@@ -75,7 +75,7 @@ public class JacksonAutoConfigurationDate {
 		simpleModule.addDeserializer(ZonedDateTime.class, new MillisOrLocalDateTimeDeserializer());
 
 		mapper.registerModule(new JavaTimeModule());
-		mapper.registerModule(simpleModule);
+		//mapper.registerModule(simpleModule);
 		mapper.registerModule(hi);
 
 		return mapper;

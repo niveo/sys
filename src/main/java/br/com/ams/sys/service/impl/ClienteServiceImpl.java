@@ -1,5 +1,8 @@
 package br.com.ams.sys.service.impl;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -8,22 +11,34 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import br.com.ams.sys.entity.Cliente;
+import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
+import br.com.ams.sys.records.ClienteContatoDto;
 import br.com.ams.sys.records.ClienteDto;
+import br.com.ams.sys.records.ClienteEnderecoDto;
 import br.com.ams.sys.records.ClienteListaDto;
 import br.com.ams.sys.records.ClienteRegistrarDto;
 import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.repository.ClienteRepository;
+import br.com.ams.sys.security.IAuthenticationFacade;
 import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class ClienteServiceImpl implements ClienteService {
 	@Autowired
@@ -37,6 +52,9 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@PersistenceContext
 	private EntityManager entityManager;
+
+	@Autowired
+	private IAuthenticationFacade authentication;
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -78,7 +96,8 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Page<ClienteListaDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
+	public Page<ClienteListaDto> obterTodos(Long empresa, PageRequest pageable, String conditions) throws Exception {
+
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(ClienteListaDto.class);
 		var root = query.from(Cliente.class);
@@ -89,46 +108,107 @@ public class ClienteServiceImpl implements ClienteService {
 
 		query.select(select);
 
-		// Create Count Query
-		var countQuery = cb.createQuery(Long.class);
-		var clientesCount = countQuery.from(Cliente.class);
-		countQuery.select(cb.count(clientesCount));
-		var count = entityManager.createQuery(countQuery).getSingleResult();
+		var predicates = obterPredicates(cb, root, conditions);
+		if (predicates.length > 0)
+			query.where(predicates);
 
 		var registros = entityManager.createQuery(query).setFirstResult((int) pageable.getOffset())
 				.setMaxResults(pageable.getPageSize()).getResultList();
 
-		return new PageImpl<ClienteListaDto>(registros, pageable, count);
+		return new PageImpl<ClienteListaDto>(registros, pageable, contarRegistros(cb, conditions));
+	}
+
+	private Long contarRegistros(CriteriaBuilder cb, String conditions) throws Exception {
+
+		// Create Count Query
+		var countQuery = cb.createQuery(Long.class);
+		var root = countQuery.from(Cliente.class);
+
+		var predicates = obterPredicates(cb, root, conditions);
+		if (predicates.length > 0)
+			countQuery.where(predicates);
+
+		countQuery.select(cb.count(root));
+		return entityManager.createQuery(countQuery).getSingleResult();
+	}
+
+	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Cliente> root, String conditions) throws Exception {
+
+		JsonNode filtros = null;
+		if (conditions != null && !conditions.isEmpty())
+			filtros = new ObjectMapper().readTree(conditions);
+
+		var predicates = new ArrayList<Predicate>();
+
+		var itFiltros = filtros.fieldNames();
+		while (itFiltros.hasNext()) {
+			var name = itFiltros.next();
+			var node = filtros.get(name);
+
+			if (node.asText().isEmpty())
+				continue;
+
+			if ("codigo".equals(name)) {
+				var predValue = cb.equal(root.get("codigo"), node.asLong());
+				predicates.add(cb.or(predValue));
+			}
+			if ("nome".equals(name)) {
+				var predValue = cb.like(root.get("nome"), "'%" + node.asText() + "%'");
+				predicates.add(cb.or(predValue));
+			}
+			if ("razaoSocial".equals(name)) {
+				var predValue = cb.like(root.get("razaoSocial"), "'%" + node.asText() + "%'");
+				predicates.add(cb.or(predValue));
+			}
+			if ("documento".equals(name)) {
+				var predValue = cb.like(root.get("documento"), "'%" + node.asText() + "%'");
+				predicates.add(cb.or(predValue));
+			}
+		}
+
+		var userDetails = authentication.getUserDetails();
+		var empresaCodigo = authentication.getUserDetails().getEmpresaCodigo();
+		log.warn("Empresa autenticada {} para usuário {} logado.", empresaCodigo, userDetails.getUsername());
+		if (empresaCodigo != null) {
+			var predValue = cb.equal(root.get("empresa").get("codigo"), empresaCodigo);
+			predicates.add(predValue);
+		}
+
+		return predicates.toArray(new Predicate[predicates.size()]);
 	}
 
 	public ClienteDto obterCodigo(Long codigo) throws Exception {
-		var cb = entityManager.getCriteriaBuilder();
-		var query = cb.createQuery(ClienteDto.class);
-		var root = query.from(Cliente.class);
 
-		var endereco = root.get("endereco");
-		var cidade = endereco.get("cidade");
-		var estado = cidade.get("estado");
-		var bairro = endereco.get("bairro");
+		var builder = ClienteDto.builder();
 
-		var selectEstado = cb.construct(EstadoDto.class, estado.get("codigo"), estado.get("descricao"),
-				estado.get("sigla"));
+		var cliente = clienteRepository.findById(codigo).get();
 
-		var selectCidade = cb.construct(CidadeDto.class, cidade.get("codigo"), cidade.get("descricao"), selectEstado);
+		if (cliente.getContatos() != null) {
+			cliente.getContatos().size();
 
-		var selectBairro = cb.construct(BairroDto.class, bairro.get("codigo"), bairro.get("descricao"));
+			var contatosSet = cliente.getContatos().stream()
+					.map(mp -> ClienteContatoDto.builder().cargo(mp.getCargo()).codigo(mp.getCodigo())
+							.nome(mp.getNome()).emails(mp.getEmails()).telefones(mp.getTelefones()).build())
+					.collect(Collectors.toSet());
 
-		var selectEndereco = cb.construct(EnderecoDto.class, endereco.get("logradouro"), endereco.get("numero"),
-				endereco.get("cep"), endereco.get("complemento"), selectCidade, selectBairro);
+			builder.contatos(contatosSet);
+		}
 
-		var select = cb.construct(ClienteDto.class, root.get("codigo"), root.get("documento"), root.get("nome"),
-				root.get("razaoSocial"), root.get("observacao"), root.get("telefone"), root.get("email"),
-				root.get("inscricaoEstadual"), root.get("tipoPessoa"), selectEndereco);
+		if (cliente.getEnderecos() != null) {
+			cliente.getEnderecos().size();
 
-		query.select(select).where(cb.equal(root.get("codigo"), codigo));
+			var enderecosSet = cliente
+					.getEnderecos().stream().map(mp -> ClienteEnderecoDto.builder().codigo(mp.getCodigo())
+							.observacao(mp.getObservacao()).endereco(mp.getEndereco().toEnderecoDto()).build())
+					.collect(Collectors.toSet());
 
-		return (ClienteDto) entityManager.createQuery(query).getSingleResult();
+			builder.enderecos(enderecosSet);
+		}
 
+		builder.codigo(cliente.getCodigo()).documento(cliente.getDocumento()).nome(cliente.getNome())
+				.razaoSocial(cliente.getRazaoSocial()).inscricaoEstadual(cliente.getInscricaoEstadual())
+				.email(cliente.getEmail()).endereco(cliente.getEndereco().toEnderecoDto());
+		return builder.build();
 	}
 
 }

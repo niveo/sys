@@ -1,6 +1,5 @@
 package br.com.ams.sys.entity;
 
-
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -13,10 +12,16 @@ import lombok.Getter;
 @Getter
 public class UserDetailsImpl implements UserDetails {
 
-	
 	private static final long serialVersionUID = 1L;
 
 	private Usuario usuario;
+
+	private Long empresaCodigo;
+
+	public UserDetailsImpl(Usuario usuario, Long empresaCodigo) {
+		this.usuario = usuario;
+		this.empresaCodigo = empresaCodigo;
+	}
 
 	public UserDetailsImpl(Usuario usuario) {
 		this.usuario = usuario;

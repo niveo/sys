@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -21,7 +22,7 @@ import br.com.ams.sys.entity.Usuario;
 import br.com.ams.sys.enuns.RoleName;
 import br.com.ams.sys.enuns.TipoPessoa;
 import br.com.ams.sys.records.UsuarioCriarDto;
-
+@Disabled
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

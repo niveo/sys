@@ -7,6 +7,7 @@ import org.hibernate.validator.spi.group.DefaultGroupSequenceProvider;
 
 import br.com.ams.sys.entity.AbstractClient;
 
+//https://medium.com/blog-gilson-silva-ti/validando-cpf-cnpj-na-mesma-vari%C3%A1vel-com-bean-validation-4429a49e9bb5
 public class ClienteGroupSequenceProvider implements DefaultGroupSequenceProvider<AbstractClient> {
 
 	@Override

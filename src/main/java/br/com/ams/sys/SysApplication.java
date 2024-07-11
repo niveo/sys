@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import br.com.ams.sys.bd.DadosIniciaiService;
+import br.com.ams.sys.service.UsuarioService;
 
 @SpringBootApplication
 public class SysApplication implements CommandLineRunner {

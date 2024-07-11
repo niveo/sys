@@ -6,15 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.ams.sys.records.BairroCriarDto;
-import br.com.ams.sys.records.BairroDto;
-import br.com.ams.sys.records.EmpresaRegistrarDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.service.EstadoService;
 
@@ -29,6 +23,5 @@ public class EstadoController {
 		var registros = estadoService.obterTodos();
 		return new ResponseEntity<List<EstadoDto>>(registros, HttpStatus.OK);
 	}
-	
 
 }

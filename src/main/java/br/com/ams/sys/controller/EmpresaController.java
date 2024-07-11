@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.ams.sys.common.Constante;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.EmpresaDto;
-import br.com.ams.sys.records.EmpresaRegistrarDto;
 import br.com.ams.sys.records.LoginRequest;
 import br.com.ams.sys.records.LoginResponse;
 import br.com.ams.sys.service.EmpresaService;
@@ -45,7 +44,7 @@ public class EmpresaController {
 	}
 
 	@PostMapping
-	public ResponseEntity<EmpresaDto> salvar(@RequestBody EmpresaRegistrarDto request) throws Exception {
+	public ResponseEntity<EmpresaDto> salvar(@RequestBody EmpresaDto request) throws Exception {
 		var empresa = empresaService.save(request);
 		return new ResponseEntity<EmpresaDto>(empresa, HttpStatus.CREATED);
 	}

@@ -37,7 +37,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	}
 
 	public MappingJackson2HttpMessageConverter jacksonMessageConverter() {
-		MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
+		var messageConverter = new MappingJackson2HttpMessageConverter();
 		messageConverter.setObjectMapper(objectMapper);
 		return messageConverter;
 

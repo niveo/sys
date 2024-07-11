@@ -4,6 +4,7 @@ import br.com.ams.sys.common.CnpjGroup;
 import br.com.ams.sys.common.CpfGroup;
 import lombok.Getter;
 
+//https://medium.com/blog-gilson-silva-ti/validando-cpf-cnpj-na-mesma-vari%C3%A1vel-com-bean-validation-4429a49e9bb5
 @Getter
 public enum TipoPessoa {
 	JURIDICA("Jurídica", "CNPJ", "00.000.000/0000-00", CnpjGroup.class),

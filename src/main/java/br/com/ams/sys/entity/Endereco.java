@@ -2,6 +2,10 @@ package br.com.ams.sys.entity;
 
 import java.io.Serializable;
 
+import br.com.ams.sys.records.BairroDto;
+import br.com.ams.sys.records.CidadeDto;
+import br.com.ams.sys.records.EnderecoDto;
+import br.com.ams.sys.records.EstadoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
@@ -42,4 +46,15 @@ public class Endereco implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Bairro.class, optional = false)
 	@JoinColumn(nullable = false, name = "bairro")
 	private Bairro bairro;
+
+	public EnderecoDto toEnderecoDto() {
+		var estado = cidade.getEstado();
+		var buildEstado = EstadoDto.builder().codigo(estado.getCodigo()).sigla(estado.getSigla()).build();
+		var buildCidade = CidadeDto.builder().codigo(cidade.getCodigo()).descricao(cidade.getDescricao())
+				.estado(buildEstado).build();
+		var buildBairro = BairroDto.builder().codigo(bairro.getCodigo()).descricao(bairro.getDescricao()).build();
+		return EnderecoDto.builder().cep(cep).complemento(complemento).logradouro(logradouro).numero(numero)
+				.bairro(buildBairro).cidade(buildCidade).build();
+
+	}
 }
