@@ -3,8 +3,9 @@ package br.com.ams.sys.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.ams.sys.entity.Cliente;
@@ -12,26 +13,56 @@ import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.records.ClienteDto;
 import br.com.ams.sys.records.ClienteListaDto;
+import br.com.ams.sys.records.ClienteRegistrarDto;
 import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.repository.ClienteRepository;
+import br.com.ams.sys.service.BairroService;
+import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 
 @Service
-@Transactional
 public class ClienteServiceImpl implements ClienteService {
 	@Autowired
 	private ClienteRepository clienteRepository;
+
+	@Autowired
+	private CidadeService cidadeService;
+
+	@Autowired
+	private BairroService bairroService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Cliente save(Cliente entidade) throws Exception {
 		return clienteRepository.save(entidade);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public ClienteDto save(ClienteRegistrarDto entidade) throws Exception {
+		var cidade = cidadeService.findByCodigo(entidade.endereco().cidade().codigo());
+		var bairro = bairroService.findByCodigo(entidade.endereco().bairro().codigo());
+
+		Cliente registrar;
+		if (entidade.codigo() != null) {
+			var emp = clienteRepository.findById(entidade.codigo()).get();
+			registrar = entidade.toCliente(emp, cidade, bairro);
+		} else {
+			registrar = entidade.toCliente(new Cliente(), cidade, bairro);
+		}
+
+		registrar.getEndereco().setCep(registrar.getEndereco().getCep().replace("-", "").trim());
+
+		registrar = save(registrar);
+
+		return obterCodigo(registrar.getCodigo());
 	}
 
 	@Override
@@ -41,12 +72,13 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public void deleteByCodigo(Long codigo) throws Exception {
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void deleteByCodigo(Long codigo) {
 		this.clienteRepository.deleteById(codigo);
 	}
 
 	@Override
-	public Page<ClienteListaDto> obterTodos(Pageable pageable) throws Exception {
+	public Page<ClienteListaDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(ClienteListaDto.class);
 		var root = query.from(Cliente.class);
@@ -67,7 +99,6 @@ public class ClienteServiceImpl implements ClienteService {
 				.setMaxResults(pageable.getPageSize()).getResultList();
 
 		return new PageImpl<ClienteListaDto>(registros, pageable, count);
-
 	}
 
 	public ClienteDto obterCodigo(Long codigo) throws Exception {
@@ -94,9 +125,10 @@ public class ClienteServiceImpl implements ClienteService {
 				root.get("razaoSocial"), root.get("observacao"), root.get("telefone"), root.get("email"),
 				root.get("inscricaoEstadual"), root.get("tipoPessoa"), selectEndereco);
 
-		query.select(select);
+		query.select(select).where(cb.equal(root.get("codigo"), codigo));
 
 		return (ClienteDto) entityManager.createQuery(query).getSingleResult();
 
 	}
+
 }

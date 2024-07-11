@@ -36,7 +36,7 @@ public class BairroController {
 
 	@PostMapping
 	public ResponseEntity<BairroDto> criar(@RequestBody BairroCriarDto request) throws Exception {
-		var cidade = bairroService.criar(request);
+		var cidade = bairroService.save(request);
 		return new ResponseEntity<BairroDto>(cidade, HttpStatus.CREATED);
 	}
 

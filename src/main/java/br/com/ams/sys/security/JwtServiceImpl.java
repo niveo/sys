@@ -1,7 +1,5 @@
 package br.com.ams.sys.security;
 
-import br.com.ams.sys.service.JwtService;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import br.com.ams.sys.service.JwtService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -61,7 +59,8 @@ public class JwtServiceImpl implements JwtService {
 				.claim("roles",
 						userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 								.map(role -> role.substring("ROLE_".length())).toArray())
-				.issuedAt(new Date(currentTimeMillis)).expiration(new Date(currentTimeMillis + tokenExpiration * 1000))
+				.issuedAt(new Date(currentTimeMillis)).expiration(new Date(currentTimeMillis + 
+						tokenExpiration * 1000))
 				.signWith(getSigningKey(), Jwts.SIG.HS256).compact();
 	}
 
@@ -71,11 +70,9 @@ public class JwtServiceImpl implements JwtService {
 	}
 
 	private Claims extractAllClaims(String jwt) {
-		try {
+	 
 			return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(jwt).getPayload();
-		} catch (JwtException e) {
-			throw new JwtAuthenticationException(e.getMessage());
-		}
+		 
 	}
 
 	private SecretKey getSigningKey() {

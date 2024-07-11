@@ -9,7 +9,7 @@ import br.com.ams.sys.records.UsuarioCriarDto;
 public interface UsuarioService {
 	Usuario save(Usuario entidade) throws Exception;
 
-	void criar(UsuarioCriarDto entidade);
+	Long criar(UsuarioCriarDto entidade);
 
 	Usuario findByCodigo(Long codigo) throws Exception;
 

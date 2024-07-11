@@ -2,7 +2,9 @@ package br.com.ams.sys.entity;
 
 import java.util.List;
 
-import br.com.ams.sys.enuns.TipoPessoa;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +16,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 
 /**
  * Usuário vai selecionar qual empresa esta usando no momento do pos login ou no
@@ -57,7 +57,8 @@ public class Usuario extends AbstractTimesTampEntity {
 	@Column(nullable = false)
 	private String senha;
 
-	@ManyToMany
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@ManyToMany 
 	@JoinTable(name = "usuario_has_empresas", joinColumns = @JoinColumn(name = "usuario"), inverseJoinColumns = @JoinColumn(name = "empresa"), uniqueConstraints = {
 			@UniqueConstraint(columnNames = { "usuario", "empresa" }) })
 	private List<Empresa> empresas;

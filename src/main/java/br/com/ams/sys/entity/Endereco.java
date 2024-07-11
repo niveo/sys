@@ -1,6 +1,5 @@
 package br.com.ams.sys.entity;
 
-
 import java.io.Serializable;
 
 import jakarta.persistence.Column;
@@ -20,7 +19,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Endereco implements Serializable {
 
-	
 	private static final long serialVersionUID = 1L;
 
 	@Column(nullable = false)
@@ -29,7 +27,7 @@ public class Endereco implements Serializable {
 	@Column(nullable = false)
 	private String numero;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 8)
 	private String cep;
 
 	@Column

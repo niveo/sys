@@ -1,8 +1,6 @@
 package br.com.ams.sys.entity;
 
-import java.util.List;
-
-import br.com.ams.sys.enuns.TipoPessoa;
+import br.com.ams.sys.records.EstadoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +14,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
@@ -39,6 +36,10 @@ public class Estado extends AbstractTimesTampEntity {
 	@Column(nullable = false)
 	private String descricao;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 2, unique = true)
 	private String sigla;
+
+	public EstadoDto toDto() {
+		return EstadoDto.builder().codigo(codigo).descricao(descricao).sigla(sigla).build();
+	}
 }

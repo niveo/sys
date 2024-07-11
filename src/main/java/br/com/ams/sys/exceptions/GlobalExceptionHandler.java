@@ -28,6 +28,13 @@ public class GlobalExceptionHandler {
 			errorDetail.setProperty("description", "Violação da integridade dos dados fornecidos.");
 			return errorDetail;
 		}
+		
+		if (exception instanceof ConstraintViolationException) {
+			errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
+			errorDetail.setProperty("description", "Violação da integridade dos dados fornecidos.");
+			return errorDetail;
+		}
+
 
 		if (exception instanceof BadCredentialsException) {
 			errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());

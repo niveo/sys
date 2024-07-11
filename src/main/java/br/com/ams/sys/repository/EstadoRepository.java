@@ -7,4 +7,5 @@ import br.com.ams.sys.entity.Estado;
 
 @Transactional(readOnly = true)
 public interface EstadoRepository extends JpaRepository<Estado, Long> {
+	Estado findBySigla(String sigla);
 }

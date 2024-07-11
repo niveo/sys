@@ -11,9 +11,13 @@ public interface CidadeService {
 
 	Cidade findByCodigo(Long codigo) throws Exception;
 
-	void deleteByCodigo(Long codigo) throws Exception;
+	void deleteByCodigo(Long codigo);
 
-	public List<CidadeDto> pesquisarDescricao(String descricao);
+	List<CidadeDto> pesquisarDescricao(String descricao);
 
-	CidadeDto criar(CidadeCriarDto entidade) throws Exception;
+	CidadeDto pesquisarDescricaoSingle(String descricao, String estadoSigla);
+
+	CidadeDto save(CidadeCriarDto entidade) throws Exception;
+
+	CidadeDto obterCodigo(Long codigo);
 }

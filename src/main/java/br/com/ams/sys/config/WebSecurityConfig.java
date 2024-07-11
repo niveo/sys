@@ -2,14 +2,10 @@ package br.com.ams.sys.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -32,10 +28,6 @@ import br.com.ams.sys.entity.UserDetailsImpl;
 import br.com.ams.sys.repository.UsuarioRepository;
 import br.com.ams.sys.security.JwtAuthenticationFilter;
 
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 //https://medium.com/@felipeacelinoo/protegendo-sua-api-rest-com-spring-security-e-autenticando-usu%C3%A1rios-com-token-jwt-em-uma-aplica%C3%A7%C3%A3o-d70e5b0331f9
 //https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
 @Configuration
@@ -52,15 +44,15 @@ public class WebSecurityConfig {
 	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = { "/usuarios/login", "/usuarios" };
 
 	// Endpoints que requerem autenticação para serem acessados
-	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test", "/clientes", "/empresas",
-			"/empresas/*", "/cidades", "/cidades/*", "/bairros", "/bairros/*", "/estados", "/estados/*" };
+	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test", "/clientes",
+			"/clientes/*", "/cidades", "/cidades/*", "/bairros", "/bairros/*", "/estados", "/estados/*", "/cep/*" };
 
 	// Endpoints que só podem ser acessador por usuários com permissão de cliente
 	public static final String[] ENDPOINTS_CUSTOMER = { "/usuarios/test/customer" };
 
 	// Endpoints que só podem ser acessador por usuários com permissão de
 	// administrador
-	public static final String[] ENDPOINTS_ADMIN = { "/usuarios/test/administrator" };
+	public static final String[] ENDPOINTS_ADMIN = { "/usuarios/test/administrator", "/empresas", "/empresas/*", };
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

@@ -32,7 +32,7 @@ public class CidadeController {
 
 	@PostMapping
 	public ResponseEntity<CidadeDto> criar(@RequestBody CidadeCriarDto request) throws Exception {
-		var cidade = cidadeService.criar(request);
+		var cidade = cidadeService.save(request);
 		return new ResponseEntity<CidadeDto>(cidade, HttpStatus.CREATED);
 	}
 

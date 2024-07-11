@@ -1,8 +1,6 @@
 package br.com.ams.sys.entity;
 
-import java.util.List;
-
-import br.com.ams.sys.enuns.TipoPessoa;
+import br.com.ams.sys.records.CidadeDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -47,4 +45,8 @@ public class Cidade extends AbstractTimesTampEntity {
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Estado.class, optional = false)
 	@JoinColumn(nullable = false, name = "estado")
 	private Estado estado;
+
+	public CidadeDto toDto() {
+		return CidadeDto.builder().codigo(codigo).descricao(descricao).estado(estado.toDto()).build();
+	}
 }

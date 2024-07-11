@@ -18,12 +18,10 @@ import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CEPPesquisaDto;
 import br.com.ams.sys.records.CepViaCepDto;
-import br.com.ams.sys.records.CidadeCriarDto;
 import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CEPService;
 import br.com.ams.sys.service.CidadeService;
-import br.com.ams.sys.service.ClienteService;
 import br.com.ams.sys.service.EstadoService;
 
 @Service

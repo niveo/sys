@@ -11,9 +11,13 @@ public interface BairroService {
 
 	Bairro findByCodigo(Long codigo) throws Exception;
 
-	void deleteByCodigo(Long codigo) throws Exception;
+	void deleteByCodigo(Long codigo);
 
-	public List<BairroDto> pesquisarDescricao(String descricao);
+	List<BairroDto> pesquisarDescricao(String descricao);
 
-	BairroDto criar(BairroCriarDto entity) throws Exception;
+	BairroDto pesquisarDescricaoSingle(String descricao);
+
+	BairroDto save(BairroCriarDto entity) throws Exception;
+
+	BairroDto obterCodigo(Long codigo);
 }

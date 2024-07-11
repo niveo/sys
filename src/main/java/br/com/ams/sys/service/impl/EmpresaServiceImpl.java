@@ -2,9 +2,6 @@ package br.com.ams.sys.service.impl;
 
 import java.util.ArrayList;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.Provider;
-import org.modelmapper.record.RecordModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,23 +10,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.com.ams.sys.entity.AbstractClient;
-import br.com.ams.sys.entity.Cidade;
-import br.com.ams.sys.entity.Cliente;
 import br.com.ams.sys.entity.Empresa;
-import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
-import br.com.ams.sys.records.ClienteDto;
 import br.com.ams.sys.records.EmpresaDto;
 import br.com.ams.sys.records.EmpresaListaDto;
 import br.com.ams.sys.records.EmpresaRegistrarDto;
-import br.com.ams.sys.records.EmpresaRegistrarEnderecoDto;
 import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.repository.EmpresaRepository;
@@ -86,14 +75,14 @@ public class EmpresaServiceImpl implements EmpresaService {
 		return obterCodigo(registrar.getCodigo());
 	}
 
-	@Override
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Override 
 	public Empresa findByCodigo(Long codigo) throws Exception {
 		return this.empresaRepository.findById(codigo)
 				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteByCodigo(Long codigo) {
 		this.empresaRepository.deleteById(codigo);
 	}

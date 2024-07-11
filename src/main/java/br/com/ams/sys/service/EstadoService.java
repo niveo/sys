@@ -10,8 +10,9 @@ public interface EstadoService {
 
 	Estado findByCodigo(Long codigo) throws Exception;
 
-	void deleteByCodigo(Long codigo) throws Exception;
- 
+	Estado findBySigla(String sigla) throws Exception;
+
+	void deleteByCodigo(Long codigo);
 
 	List<EstadoDto> obterTodos() throws Exception;
 }

@@ -15,7 +15,7 @@ public interface EmpresaService {
 
 	Empresa findByCodigo(Long codigo) throws Exception;
 
-	void deleteByCodigo(Long codigo) throws Exception;
+	void deleteByCodigo(Long codigo);
 
 	EmpresaDto obterCodigo(Long codigo) throws Exception;
 

@@ -1,10 +1,5 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serializable;
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import br.com.ams.sys.enuns.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;

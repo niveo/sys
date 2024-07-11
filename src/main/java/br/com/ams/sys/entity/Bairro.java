@@ -1,6 +1,6 @@
 package br.com.ams.sys.entity;
 
-import br.com.ams.sys.enuns.TipoPessoa;
+import br.com.ams.sys.records.BairroDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +15,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
 @Builder
@@ -23,7 +22,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
-@Table(indexes = { @Index(columnList = "descricao") })
+@Table(indexes = { @Index(columnList = "descricao", unique = true) })
 public class Bairro extends AbstractTimesTampEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -37,4 +36,7 @@ public class Bairro extends AbstractTimesTampEntity {
 	@Column(nullable = false)
 	private String descricao;
 
+	public BairroDto toDto() {
+		return BairroDto.builder().codigo(codigo).descricao(descricao).build();
+	}
 }

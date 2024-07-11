@@ -2,9 +2,6 @@ package br.com.ams.sys.entity;
 
 
 
-import java.util.List;
-
-import br.com.ams.sys.enuns.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
