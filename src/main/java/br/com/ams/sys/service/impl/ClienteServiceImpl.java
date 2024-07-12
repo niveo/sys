@@ -27,6 +27,7 @@ import br.com.ams.sys.security.IAuthenticationFacade;
 import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
+import br.com.ams.sys.service.EmpresaService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -47,6 +48,9 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Autowired
 	private BairroService bairroService;
+
+	@Autowired
+	private EmpresaService empresaService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -73,6 +77,10 @@ public class ClienteServiceImpl implements ClienteService {
 		} else {
 			registrar = entidade.toCliente(new Cliente(), cidade, bairro);
 		}
+
+		var empresaCodigo = authentication.getUserDetails().getEmpresaCodigo();
+		var empresa = empresaService.findByCodigo(empresaCodigo);
+		registrar.setEmpresa(empresa);
 
 		registrar.getEndereco().setCep(registrar.getEndereco().getCep().replace("-", "").trim());
 

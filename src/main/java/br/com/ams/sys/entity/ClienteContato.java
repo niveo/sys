@@ -5,8 +5,10 @@ import java.util.Set;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import br.com.ams.sys.records.ClienteContatoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,11 +20,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
-@Builder
+@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(of = { "codigo" })
@@ -49,7 +51,12 @@ public class ClienteContato extends AbstractTimesTampEntity {
 	@Column
 	private Set<String> emails;
 
-	@ManyToOne(targetEntity = Cliente.class)
+	@ManyToOne(targetEntity = Cliente.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "cliente", nullable = false)
 	private Cliente cliente;
+
+	public ClienteContatoDto toClienteContatoDto() {
+		return ClienteContatoDto.builder().cargo(cargo).cliente(cliente.getCodigo()).emails(emails).nome(nome)
+				.observacao(observacao).telefones(telefones).codigo(codigo).build();
+	}
 }
