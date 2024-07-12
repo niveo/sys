@@ -23,7 +23,7 @@ import lombok.ToString;
 @Builder
 @ToString(of = { "codigo" })
 @Entity
-@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
+@Table(indexes = { @Index(columnList = "codigo, cliente", unique = true) })
 public class Segmento extends AbstractTimesTampEntity {
 
 	
@@ -38,7 +38,7 @@ public class Segmento extends AbstractTimesTampEntity {
 	@Column(nullable = false)
 	private String descricao;
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
-	@JoinColumn(nullable = false, name = "empresa")
-	private Empresa empresa;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Cliente.class, optional = false)
+	@JoinColumn(nullable = false, name = "cliente")
+	private Cliente cliente;
 }

@@ -1,7 +1,6 @@
 package br.com.ams.sys.service.impl;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,16 +14,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.ams.sys.entity.Cliente;
-import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
-import br.com.ams.sys.records.ClienteContatoDto;
 import br.com.ams.sys.records.ClienteDto;
-import br.com.ams.sys.records.ClienteEnderecoDto;
 import br.com.ams.sys.records.ClienteListaDto;
 import br.com.ams.sys.records.ClienteRegistrarDto;
 import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
+import br.com.ams.sys.records.SegmentoDto;
 import br.com.ams.sys.repository.ClienteRepository;
 import br.com.ams.sys.security.IAuthenticationFacade;
 import br.com.ams.sys.service.BairroService;
@@ -34,6 +31,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
@@ -178,37 +176,36 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	public ClienteDto obterCodigo(Long codigo) throws Exception {
+		var cb = entityManager.getCriteriaBuilder();
+		var query = cb.createQuery(ClienteDto.class);
+		var root = query.from(Cliente.class);
 
-		var builder = ClienteDto.builder();
+		var segmento = root.join("segmento", JoinType.LEFT);
 
-		var cliente = clienteRepository.findById(codigo).get();
+		var endereco = root.get("endereco");
+		var cidade = endereco.get("cidade");
+		var estado = cidade.get("estado");
+		var bairro = endereco.get("bairro");
 
-		if (cliente.getContatos() != null) {
-			cliente.getContatos().size();
+		var selectSegmento = cb.construct(SegmentoDto.class, segmento.get("codigo"), segmento.get("descricao"));
 
-			var contatosSet = cliente.getContatos().stream()
-					.map(mp -> ClienteContatoDto.builder().cargo(mp.getCargo()).codigo(mp.getCodigo())
-							.nome(mp.getNome()).emails(mp.getEmails()).telefones(mp.getTelefones()).build())
-					.collect(Collectors.toSet());
+		var selectEstado = cb.construct(EstadoDto.class, estado.get("codigo"), estado.get("descricao"),
+				estado.get("sigla"));
 
-			builder.contatos(contatosSet);
-		}
+		var selectCidade = cb.construct(CidadeDto.class, cidade.get("codigo"), cidade.get("descricao"), selectEstado);
 
-		if (cliente.getEnderecos() != null) {
-			cliente.getEnderecos().size();
+		var selectBairro = cb.construct(BairroDto.class, bairro.get("codigo"), bairro.get("descricao"));
 
-			var enderecosSet = cliente
-					.getEnderecos().stream().map(mp -> ClienteEnderecoDto.builder().codigo(mp.getCodigo())
-							.observacao(mp.getObservacao()).endereco(mp.getEndereco().toEnderecoDto()).build())
-					.collect(Collectors.toSet());
+		var selectEndereco = cb.construct(EnderecoDto.class, endereco.get("logradouro"), endereco.get("numero"),
+				endereco.get("cep"), endereco.get("complemento"), selectCidade, selectBairro);
 
-			builder.enderecos(enderecosSet);
-		}
+		var select = cb.construct(ClienteDto.class, root.get("codigo"), root.get("documento"), root.get("nome"),
+				root.get("razaoSocial"), root.get("observacao"), root.get("telefone"), root.get("email"),
+				root.get("inscricaoEstadual"), root.get("tipoPessoa"), selectSegmento, selectEndereco);
 
-		builder.codigo(cliente.getCodigo()).documento(cliente.getDocumento()).nome(cliente.getNome())
-				.razaoSocial(cliente.getRazaoSocial()).inscricaoEstadual(cliente.getInscricaoEstadual())
-				.email(cliente.getEmail()).endereco(cliente.getEndereco().toEnderecoDto());
-		return builder.build();
+		query.select(select).where(cb.equal(root.get("codigo"), codigo));
+
+		return (ClienteDto) entityManager.createQuery(query).getSingleResult();
 	}
 
 }

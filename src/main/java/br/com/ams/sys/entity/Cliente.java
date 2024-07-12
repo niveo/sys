@@ -34,9 +34,6 @@ public class Cliente extends AbstractClient {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column
-	private String suframa;
-
 	// Unidirectional
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
 	@JoinColumn(nullable = false, name = "empresa")

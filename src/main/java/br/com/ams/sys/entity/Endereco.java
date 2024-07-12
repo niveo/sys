@@ -15,10 +15,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Embeddable
 @Data
-@Builder
+@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Endereco implements Serializable {
@@ -48,13 +49,8 @@ public class Endereco implements Serializable {
 	private Bairro bairro;
 
 	public EnderecoDto toEnderecoDto() {
-		var estado = cidade.getEstado();
-		var buildEstado = EstadoDto.builder().codigo(estado.getCodigo()).sigla(estado.getSigla()).build();
-		var buildCidade = CidadeDto.builder().codigo(cidade.getCodigo()).descricao(cidade.getDescricao())
-				.estado(buildEstado).build();
-		var buildBairro = BairroDto.builder().codigo(bairro.getCodigo()).descricao(bairro.getDescricao()).build();
 		return EnderecoDto.builder().cep(cep).complemento(complemento).logradouro(logradouro).numero(numero)
-				.bairro(buildBairro).cidade(buildCidade).build();
+				.bairro(bairro.toDto()).cidade(cidade.toDto()).build();
 
 	}
 }
