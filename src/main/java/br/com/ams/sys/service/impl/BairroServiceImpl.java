@@ -1,23 +1,36 @@
 package br.com.ams.sys.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Bairro;
+import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.records.BairroCriarDto;
 import br.com.ams.sys.records.BairroDto;
+import br.com.ams.sys.records.CidadeDto;
+import br.com.ams.sys.records.ClienteListaDto;
 import br.com.ams.sys.repository.BairroRepository;
 import br.com.ams.sys.service.BairroService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 @Service
 @Transactional(readOnly = true)
@@ -57,17 +70,64 @@ public class BairroServiceImpl implements BairroService {
 	}
 
 	@Cacheable(value = RedisConfig.CACHE_BAIRRO_KEY)
-	public List<BairroDto> pesquisarDescricao(String descricao) {
+	public Page<BairroDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(BairroDto.class);
 		var root = query.from(Bairro.class);
 
 		var select = cb.construct(BairroDto.class, root.get("codigo"), root.get("descricao"));
 
-		query.select(select).where(cb.like(root.get("descricao"), "%" + descricao.toUpperCase() + "%"))
-				.orderBy(cb.asc(root.get("descricao")));
+		query.select(select);
 
-		return entityManager.createQuery(query).getResultList();
+		var predicates = obterPredicates(cb, root, conditions);
+		if (predicates.length > 0)
+			query.where(predicates);
+
+		query.orderBy(cb.asc(root.get("descricao")));
+
+		var registros = entityManager.createQuery(query).setFirstResult((int) pageable.getOffset())
+				.setMaxResults(pageable.getPageSize()).getResultList();
+
+		return new PageImpl<BairroDto>(registros, pageable, contarRegistros(cb, conditions));
+	}
+
+	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Bairro> root, String conditions) throws Exception {
+
+		JsonNode filtros = null;
+		if (conditions != null && !conditions.isEmpty())
+			filtros = new ObjectMapper().readTree(conditions);
+
+		var predicates = new ArrayList<Predicate>();
+
+		var itFiltros = filtros.fieldNames();
+		while (itFiltros.hasNext()) {
+			var name = itFiltros.next();
+			var node = filtros.get(name);
+
+			if (node.asText().isEmpty())
+				continue;
+
+			if ("descricao".equals(name)) {
+				var predValue = cb.like(root.get("descricao"), "'%" + node.asText() + "%'");
+				predicates.add(cb.or(predValue));
+			}
+		}
+
+		return predicates.toArray(new Predicate[predicates.size()]);
+	}
+
+	private Long contarRegistros(CriteriaBuilder cb, String conditions) throws Exception {
+
+		// Create Count Query
+		var countQuery = cb.createQuery(Long.class);
+		var root = countQuery.from(Bairro.class);
+
+		var predicates = obterPredicates(cb, root, conditions);
+		if (predicates.length > 0)
+			countQuery.where(predicates);
+
+		countQuery.select(cb.count(root));
+		return entityManager.createQuery(countQuery).getSingleResult();
 	}
 
 	public BairroDto pesquisarDescricaoSingle(String descricao) {

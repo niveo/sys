@@ -28,11 +28,10 @@ public class ClienteController {
 	private ClienteService clienteService;
 
 	@GetMapping
-	PagedModel<?> obterTodos(@RequestHeader("empresa") Long empresa,
-			@RequestParam(name = "page", defaultValue = "0") Integer page,
+	PagedModel<?> obterTodos(@RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "condicoes") String condicoes) throws Exception {
-		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS_EMPRESAS);
-		var clientes = clienteService.obterTodos(empresa, pageable, condicoes);
+		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS);
+		var clientes = clienteService.obterTodos(pageable, condicoes);
 		return new PagedModel<>(clientes);
 	}
 

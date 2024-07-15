@@ -31,7 +31,7 @@ public class EmpresaController {
 	@GetMapping
 	PagedModel<?> obterTodos(@RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "condicoes") String condicoes) throws Exception {
-		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS_EMPRESAS);
+		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS);
 		var clientes = empresaService.obterTodos(pageable, condicoes);
 		return new PagedModel<>(clientes);
 	}

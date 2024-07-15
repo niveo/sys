@@ -3,6 +3,8 @@ package br.com.ams.sys.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.ams.sys.common.Constante;
 import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.records.BairroCriarDto;
 import br.com.ams.sys.records.BairroDto;
@@ -27,11 +30,12 @@ public class BairroController {
 	@Autowired
 	private BairroService bairroService;
 
-	@GetMapping("/pesquisarDescricao")
-	public ResponseEntity<List<BairroDto>> pesquisarDescricao(
-			@RequestParam(name = "descricao", required = true) String descricao) {
-		var registros = bairroService.pesquisarDescricao(descricao);
-		return new ResponseEntity<List<BairroDto>>(registros, HttpStatus.OK);
+	@GetMapping
+	PagedModel<?> obterTodos(@RequestParam(name = "page", defaultValue = "0") Integer page,
+			@RequestParam(name = "condicoes") String condicoes) throws Exception {
+		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS);
+		var registros = bairroService.obterTodos(pageable, condicoes);
+		return new PagedModel<>(registros);
 	}
 
 	@PostMapping

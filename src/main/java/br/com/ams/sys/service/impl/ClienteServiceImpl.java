@@ -102,7 +102,7 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Page<ClienteListaDto> obterTodos(Long empresa, PageRequest pageable, String conditions) throws Exception {
+	public Page<ClienteListaDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
 
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(ClienteListaDto.class);

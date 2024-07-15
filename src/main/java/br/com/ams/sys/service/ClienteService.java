@@ -19,6 +19,6 @@ public interface ClienteService {
 
 	ClienteDto obterCodigo(Long codigo) throws Exception;
 
-	Page<ClienteListaDto> obterTodos(Long empresa, PageRequest pageable, String conditions) throws Exception;
+	Page<ClienteListaDto> obterTodos(PageRequest pageable, String conditions) throws Exception;
 
 }
