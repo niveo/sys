@@ -98,11 +98,6 @@ public class BairroServiceTest {
 		assertThat(registro.descricao()).isEqualTo("TESTEDTO");
 	}
 
-	@Test
-	void deve_retornar_um_registro() throws Exception {
-		bairroService.save(BairroCriarDto.builder().descricao("pesquisa1").build());
-		var registros = bairroService.pesquisarDescricao("pesquisa1");
-		assertThat(registros).hasSize(1);
-	}
+	 
 
 }

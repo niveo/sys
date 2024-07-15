@@ -15,6 +15,7 @@ import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.entity.Estado;
 import br.com.ams.sys.records.CidadeCriarDto;
 import jakarta.persistence.EntityNotFoundException;
+
 @Disabled
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -105,14 +106,6 @@ public class CidadeServiceTest {
 		assertThat(registro.descricao()).isNotBlank();
 		assertThat(registro.descricao()).isUpperCase();
 		assertThat(registro.descricao()).isEqualTo("TESTEDTO");
-	}
-
-	@Test
-	void deve_retornar_um_registro() throws Exception {
-		var estado = estadoService.save(Estado.builder().descricao("TESTE").sigla("T5").build());
-		cidadeService.save(CidadeCriarDto.builder().descricao("pesquisa1").estado(estado.getCodigo()).build());
-		var registros = cidadeService.pesquisarDescricao("pesquisa1");
-		assertThat(registros).hasSize(1);
 	}
 
 }

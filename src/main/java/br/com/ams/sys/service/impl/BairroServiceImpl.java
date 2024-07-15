@@ -1,14 +1,11 @@
 package br.com.ams.sys.service.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,13 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.ams.sys.common.Constante;
+import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Bairro;
-import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.records.BairroCriarDto;
 import br.com.ams.sys.records.BairroDto;
-import br.com.ams.sys.records.CidadeDto;
-import br.com.ams.sys.records.ClienteListaDto;
 import br.com.ams.sys.repository.BairroRepository;
 import br.com.ams.sys.service.BairroService;
 import jakarta.persistence.EntityManager;
@@ -70,7 +66,9 @@ public class BairroServiceImpl implements BairroService {
 	}
 
 	@Cacheable(value = RedisConfig.CACHE_BAIRRO_KEY)
-	public Page<BairroDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
+	public Page<BairroDto> obterTodos(Integer page, String conditions) throws Exception {
+		page--;
+
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(BairroDto.class);
 		var root = query.from(Bairro.class);
@@ -85,31 +83,31 @@ public class BairroServiceImpl implements BairroService {
 
 		query.orderBy(cb.asc(root.get("descricao")));
 
-		var registros = entityManager.createQuery(query).setFirstResult((int) pageable.getOffset())
-				.setMaxResults(pageable.getPageSize()).getResultList();
+		var registros = entityManager.createQuery(query).setFirstResult(page * Constante.PAGINA_REGISTROS)
+				.setMaxResults(Constante.PAGINA_REGISTROS).getResultList();
 
-		return new PageImpl<BairroDto>(registros, pageable, contarRegistros(cb, conditions));
+		return new RestPage<BairroDto>(registros, page, Constante.PAGINA_REGISTROS, contarRegistros(cb, conditions));
 	}
 
 	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Bairro> root, String conditions) throws Exception {
 
 		JsonNode filtros = null;
-		if (conditions != null && !conditions.isEmpty())
-			filtros = new ObjectMapper().readTree(conditions);
-
 		var predicates = new ArrayList<Predicate>();
 
-		var itFiltros = filtros.fieldNames();
-		while (itFiltros.hasNext()) {
-			var name = itFiltros.next();
-			var node = filtros.get(name);
+		if (conditions != null && !conditions.isEmpty()) {
+			filtros = new ObjectMapper().readTree(conditions);
+			var itFiltros = filtros.fieldNames();
+			while (itFiltros.hasNext()) {
+				var name = itFiltros.next();
+				var node = filtros.get(name);
 
-			if (node.asText().isEmpty())
-				continue;
+				if (node.asText().isEmpty())
+					continue;
 
-			if ("descricao".equals(name)) {
-				var predValue = cb.like(root.get("descricao"), "'%" + node.asText() + "%'");
-				predicates.add(cb.or(predValue));
+				if ("descricao".equals(name)) {
+					var predValue = cb.like(root.get("descricao"), "%" + node.asText() + "%");
+					predicates.add(predValue);
+				}
 			}
 		}
 

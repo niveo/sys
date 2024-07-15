@@ -29,8 +29,7 @@ public class CidadeController {
 	@GetMapping
 	PagedModel<?> obterTodos(@RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "condicoes") String condicoes) throws Exception {
-		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS);
-		var registros = cidadeService.obterTodos(pageable, condicoes);
+		var registros = cidadeService.obterTodos(page, condicoes);
 		return new PagedModel<>(registros);
 	}
 

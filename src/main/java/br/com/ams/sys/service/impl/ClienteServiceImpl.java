@@ -3,6 +3,7 @@ package br.com.ams.sys.service.impl;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.ams.sys.common.Constante;
+import br.com.ams.sys.common.RestPage;
+import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Cliente;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
@@ -102,8 +106,9 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Page<ClienteListaDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
-
+	@Cacheable(value = RedisConfig.CACHE_EMPRESAS_KEY)
+	public Page<ClienteListaDto> obterTodos(Integer page, String conditions) throws Exception {
+		page--;
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(ClienteListaDto.class);
 		var root = query.from(Cliente.class);
@@ -118,10 +123,11 @@ public class ClienteServiceImpl implements ClienteService {
 		if (predicates.length > 0)
 			query.where(predicates);
 
-		var registros = entityManager.createQuery(query).setFirstResult((int) pageable.getOffset())
-				.setMaxResults(pageable.getPageSize()).getResultList();
+		var registros = entityManager.createQuery(query).setFirstResult(page * Constante.PAGINA_REGISTROS)
+				.setMaxResults(Constante.PAGINA_REGISTROS).getResultList();
 
-		return new PageImpl<ClienteListaDto>(registros, pageable, contarRegistros(cb, conditions));
+		return new RestPage<ClienteListaDto>(registros, page, Constante.PAGINA_REGISTROS,
+				contarRegistros(cb, conditions));
 	}
 
 	private Long contarRegistros(CriteriaBuilder cb, String conditions) throws Exception {
@@ -141,34 +147,34 @@ public class ClienteServiceImpl implements ClienteService {
 	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Cliente> root, String conditions) throws Exception {
 
 		JsonNode filtros = null;
-		if (conditions != null && !conditions.isEmpty())
-			filtros = new ObjectMapper().readTree(conditions);
-
 		var predicates = new ArrayList<Predicate>();
 
-		var itFiltros = filtros.fieldNames();
-		while (itFiltros.hasNext()) {
-			var name = itFiltros.next();
-			var node = filtros.get(name);
+		if (conditions != null && !conditions.isEmpty()) {
+			filtros = new ObjectMapper().readTree(conditions);
+			var itFiltros = filtros.fieldNames();
+			while (itFiltros.hasNext()) {
+				var name = itFiltros.next();
+				var node = filtros.get(name);
 
-			if (node.asText().isEmpty())
-				continue;
+				if (node.asText().isEmpty())
+					continue;
 
-			if ("codigo".equals(name)) {
-				var predValue = cb.equal(root.get("codigo"), node.asLong());
-				predicates.add(cb.or(predValue));
-			}
-			if ("nome".equals(name)) {
-				var predValue = cb.like(root.get("nome"), "'%" + node.asText() + "%'");
-				predicates.add(cb.or(predValue));
-			}
-			if ("razaoSocial".equals(name)) {
-				var predValue = cb.like(root.get("razaoSocial"), "'%" + node.asText() + "%'");
-				predicates.add(cb.or(predValue));
-			}
-			if ("documento".equals(name)) {
-				var predValue = cb.like(root.get("documento"), "'%" + node.asText() + "%'");
-				predicates.add(cb.or(predValue));
+				if ("codigo".equals(name)) {
+					var predValue = cb.equal(root.get("codigo"), node.asLong());
+					predicates.add(cb.or(predValue));
+				}
+				if ("nome".equals(name)) {
+					var predValue = cb.like(root.get("nome"), "'%" + node.asText() + "%");
+					predicates.add(cb.or(predValue));
+				}
+				if ("razaoSocial".equals(name)) {
+					var predValue = cb.like(root.get("razaoSocial"), "%" + node.asText() + "%");
+					predicates.add(cb.or(predValue));
+				}
+				if ("documento".equals(name)) {
+					var predValue = cb.like(root.get("documento"), "%" + node.asText() + "%");
+					predicates.add(cb.or(predValue));
+				}
 			}
 		}
 

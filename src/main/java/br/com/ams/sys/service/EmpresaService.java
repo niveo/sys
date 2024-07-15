@@ -18,5 +18,5 @@ public interface EmpresaService {
 
 	EmpresaDto obterCodigo(Long codigo) throws Exception;
 
-	Page<EmpresaListaDto> obterTodos(PageRequest pageable, String conditions) throws Exception;
+	Page<EmpresaListaDto> obterTodos(Integer page, String conditions) throws Exception;
 }

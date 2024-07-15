@@ -3,6 +3,7 @@ package br.com.ams.sys.service.impl;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.ams.sys.common.Constante;
+import br.com.ams.sys.common.RestPage;
+import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Empresa;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
@@ -117,8 +121,9 @@ public class EmpresaServiceImpl implements EmpresaService {
 	}
 
 	@Override
-	public Page<EmpresaListaDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
-
+	@Cacheable(value = RedisConfig.CACHE_CLIENTES_KEY)
+	public Page<EmpresaListaDto> obterTodos(Integer page, String conditions) throws Exception {
+		page--;
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(EmpresaListaDto.class);
 		var root = query.from(Empresa.class);
@@ -133,10 +138,11 @@ public class EmpresaServiceImpl implements EmpresaService {
 		if (predicates.length > 0)
 			query.where(cb.or(predicates));
 
-		var registros = entityManager.createQuery(query).setFirstResult((int) pageable.getOffset())
-				.setMaxResults(pageable.getPageSize()).getResultList();
+		var registros = entityManager.createQuery(query).setFirstResult(page * Constante.PAGINA_REGISTROS)
+				.setMaxResults(Constante.PAGINA_REGISTROS).getResultList();
 
-		return new PageImpl<EmpresaListaDto>(registros, pageable, contarRegistros(cb, conditions));
+		return new RestPage<EmpresaListaDto>(registros, page, Constante.PAGINA_REGISTROS,
+				contarRegistros(cb, conditions));
 
 	}
 
@@ -157,34 +163,34 @@ public class EmpresaServiceImpl implements EmpresaService {
 	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Empresa> root, String conditions) throws Exception {
 
 		JsonNode filtros = null;
-		if (conditions != null && !conditions.isEmpty())
-			filtros = new ObjectMapper().readTree(conditions);
-
 		var predicates = new ArrayList<Predicate>();
 
-		var itFiltros = filtros.fieldNames();
-		while (itFiltros.hasNext()) {
-			var name = itFiltros.next();
-			var node = filtros.get(name);
+		if (conditions != null && !conditions.isEmpty()) {
+			filtros = new ObjectMapper().readTree(conditions);
+			var itFiltros = filtros.fieldNames();
+			while (itFiltros.hasNext()) {
+				var name = itFiltros.next();
+				var node = filtros.get(name);
 
-			if (node.asText().isEmpty())
-				continue;
+				if (node.asText().isEmpty())
+					continue;
 
-			if ("codigo".equals(name)) {
-				var predValue = cb.equal(root.get("codigo"), node.asLong());
-				predicates.add(predValue);
-			}
-			if ("nome".equals(name)) {
-				var predValue = cb.like(root.get("nome"), String.format("\"%%s\"%", node.asText()));
-				predicates.add(predValue);
-			}
-			if ("razaoSocial".equals(name)) {
-				var predValue = cb.like(root.get("razaoSocial"), String.format("\"%%s\"%", node.asText()));
-				predicates.add(predValue);
-			}
-			if ("documento".equals(name)) {
-				var predValue = cb.like(root.get("documento"), String.format("\"%%s\"%", node.asText()));
-				predicates.add(predValue);
+				if ("codigo".equals(name)) {
+					var predValue = cb.equal(root.get("codigo"), node.asLong());
+					predicates.add(predValue);
+				}
+				if ("nome".equals(name)) {
+					var predValue = cb.like(root.get("nome"), String.format("\"%%s\"%", node.asText()));
+					predicates.add(predValue);
+				}
+				if ("razaoSocial".equals(name)) {
+					var predValue = cb.like(root.get("razaoSocial"), String.format("\"%%s\"%", node.asText()));
+					predicates.add(predValue);
+				}
+				if ("documento".equals(name)) {
+					var predValue = cb.like(root.get("documento"), String.format("\"%%s\"%", node.asText()));
+					predicates.add(predValue);
+				}
 			}
 		}
 

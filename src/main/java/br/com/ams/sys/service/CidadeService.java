@@ -16,7 +16,7 @@ public interface CidadeService {
 
 	void deleteByCodigo(Long codigo);
 
-	Page<CidadeDto> obterTodos(PageRequest pageable, String descricao) throws Exception;
+	Page<CidadeDto> obterTodos(Integer page, String conditions) throws Exception;
 
 	CidadeDto pesquisarDescricaoSingle(String descricao, String estadoSigla);
 

@@ -33,8 +33,8 @@ public class BairroController {
 	@GetMapping
 	PagedModel<?> obterTodos(@RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "condicoes") String condicoes) throws Exception {
-		var pageable = PageRequest.of(page, Constante.PAGINA_REGISTROS);
-		var registros = bairroService.obterTodos(pageable, condicoes);
+		System.out.println(condicoes); 
+		var registros = bairroService.obterTodos(page, condicoes);
 		return new PagedModel<>(registros);
 	}
 

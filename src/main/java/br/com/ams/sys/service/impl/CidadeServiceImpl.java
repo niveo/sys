@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.ams.sys.common.Constante;
+import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.entity.Cliente;
@@ -71,8 +73,8 @@ public class CidadeServiceImpl implements CidadeService {
 
 	@Override
 	@Cacheable(value = RedisConfig.CACHE_CIDADE_KEY)
-	public Page<CidadeDto> obterTodos(PageRequest pageable, String conditions) throws Exception {
-
+	public Page<CidadeDto> obterTodos(Integer page, String conditions) throws Exception {
+		page--;
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(CidadeDto.class);
 		var root = query.from(Cidade.class);
@@ -87,15 +89,18 @@ public class CidadeServiceImpl implements CidadeService {
 		query.select(select);
 
 		var predicates = obterPredicates(cb, root, conditions);
+
 		if (predicates.length > 0)
 			query.where(predicates);
 
 		query.orderBy(cb.asc(root.get("descricao")));
 
-		var registros = entityManager.createQuery(query).setFirstResult((int) pageable.getOffset())
-				.setMaxResults(pageable.getPageSize()).getResultList();
+		var registros = entityManager.createQuery(query).setFirstResult(page * Constante.PAGINA_REGISTROS)
+				.setMaxResults(Constante.PAGINA_REGISTROS).getResultList();
 
-		return new PageImpl<CidadeDto>(registros, pageable, contarRegistros(cb, conditions));
+		var contaRegistros = contarRegistros(cb, conditions);
+
+		return new RestPage<CidadeDto>(registros, page, Constante.PAGINA_REGISTROS, contaRegistros);
 	}
 
 	private Long contarRegistros(CriteriaBuilder cb, String conditions) throws Exception {
@@ -115,22 +120,21 @@ public class CidadeServiceImpl implements CidadeService {
 	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Cidade> root, String conditions) throws Exception {
 
 		JsonNode filtros = null;
-		if (conditions != null && !conditions.isEmpty())
-			filtros = new ObjectMapper().readTree(conditions);
-
 		var predicates = new ArrayList<Predicate>();
+		if (conditions != null && !conditions.isEmpty()) {
+			filtros = new ObjectMapper().readTree(conditions);
+			var itFiltros = filtros.fieldNames();
+			while (itFiltros.hasNext()) {
+				var name = itFiltros.next();
+				var node = filtros.get(name);
 
-		var itFiltros = filtros.fieldNames();
-		while (itFiltros.hasNext()) {
-			var name = itFiltros.next();
-			var node = filtros.get(name);
+				if (node.asText().isEmpty())
+					continue;
 
-			if (node.asText().isEmpty())
-				continue;
-
-			if ("descricao".equals(name)) {
-				var predValue = cb.like(root.get("descricao"), "'%" + node.asText() + "%'");
-				predicates.add(cb.or(predValue));
+				if ("descricao".equals(name)) {
+					var predValue = cb.like(root.get("descricao"), "%" + node.asText() + "%");
+					predicates.add(cb.or(predValue));
+				}
 			}
 		}
 

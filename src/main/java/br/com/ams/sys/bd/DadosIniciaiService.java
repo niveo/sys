@@ -84,6 +84,7 @@ public class DadosIniciaiService {
 	private void registrarEstados() throws Exception {
 		try {
 			estadoRepository.saveAll(listarEstados());
+			System.out.println("Estados importados...");
 		} catch (Exception e) {
 			throw e;
 		}
@@ -93,7 +94,8 @@ public class DadosIniciaiService {
 	private Estado registrarCidades() throws Exception {
 		try {
 			var estado = estadoRepository.findAll().stream().filter(f -> f.getSigla().equals("SP")).findFirst().get();
-			cidadeRepository.saveAll(listaCidade(estado).stream().limit(5).toList());
+			cidadeRepository.saveAll(listaCidade(estado).stream()/* .limit(5) */.toList());
+			System.out.println("Cidades importados...");
 			return estado;
 		} catch (Exception e) {
 			throw e;
@@ -103,7 +105,8 @@ public class DadosIniciaiService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	private void registrarBairros() throws Exception {
 		try {
-			bairroRepository.saveAll(listaBairro().stream().limit(5).toList());
+			bairroRepository.saveAll(listaBairro().stream()/* .limit(5) */.toList());
+			System.out.println("Bairro importados...");
 		} catch (Exception e) {
 			throw e;
 		}
@@ -171,10 +174,12 @@ public class DadosIniciaiService {
 			usuario.setEmpresas(List.of(empresa, empresa2));
 			usuarioService.save(usuario);
 
-			empresaService.obterTodos(PageRequest.of(0, 10), "{\"codigo\": \"1\"}");
+			empresaService.obterTodos(0, "{\"codigo\": \"1\"}");
 
 			// cepService.pesquisar("09980200");
 			// cepService.pesquisar("09185410");
+
+			// cidadeService.obterTodos(0, "");
 
 		} catch (Exception e) {
 			e.printStackTrace();

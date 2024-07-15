@@ -16,7 +16,7 @@ public interface BairroService {
 
 	void deleteByCodigo(Long codigo);
 
-	Page<BairroDto> obterTodos(PageRequest pageable, String descricao) throws Exception;
+	Page<BairroDto> obterTodos(Integer page, String descricao) throws Exception;
 
 	BairroDto pesquisarDescricaoSingle(String descricao);
 

@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @EnableScheduling
 public class RedisConfig {
 	public static final String CACHE_CIDADE_KEY = "cidades";
+	public static final String CACHE_CLIENTES_KEY = "clientes";
+	public static final String CACHE_EMPRESAS_KEY = "empresas";
 	public static final String CACHE_USUARIO_EMAIL_KEY = "usuario_email";
 	public static final String CACHE_ESTADOS_KEY = "estados";
 	public static final String CACHE_EMPRESAS_USUARIO_KEY = "empresas_usuario";
