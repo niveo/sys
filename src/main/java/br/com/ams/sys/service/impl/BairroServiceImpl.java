@@ -21,6 +21,7 @@ import br.com.ams.sys.records.BairroCriarDto;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.repository.BairroRepository;
 import br.com.ams.sys.service.BairroService;
+import br.com.ams.sys.service.CacheService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -38,11 +39,15 @@ public class BairroServiceImpl implements BairroService {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	@Autowired
+	private CacheService cacheService;
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Bairro save(Bairro entidade) throws Exception {
 		if (StringUtils.isNotEmpty(entidade.getDescricao()))
 			entidade.setDescricao(entidade.getDescricao().toUpperCase());
+		cacheService.clear(RedisConfig.CACHE_BAIRRO_KEY);
 		return bairroRepository.save(entidade);
 	}
 

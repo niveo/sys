@@ -24,8 +24,10 @@ import br.com.ams.sys.entity.ClienteEndereco;
 import br.com.ams.sys.entity.Empresa;
 import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.entity.Estado;
+import br.com.ams.sys.entity.SegmentoCliente;
 import br.com.ams.sys.enuns.RoleName;
 import br.com.ams.sys.enuns.TipoPessoa;
+import br.com.ams.sys.records.SegmentoClienteDto;
 import br.com.ams.sys.records.UsuarioCriarDto;
 import br.com.ams.sys.repository.BairroRepository;
 import br.com.ams.sys.repository.CidadeRepository;
@@ -37,6 +39,7 @@ import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
 import br.com.ams.sys.service.EmpresaService;
 import br.com.ams.sys.service.EstadoService;
+import br.com.ams.sys.service.SegmentoClienteService;
 import br.com.ams.sys.service.UsuarioService;
 
 @Service
@@ -72,6 +75,9 @@ public class DadosIniciaiService {
 	private ClienteRepository clienteRepository;
 
 	@Autowired
+	private SegmentoClienteService segmentoClienteService;
+
+	@Autowired
 	PasswordEncoder passwordEncoder;
 
 	@Autowired
@@ -94,7 +100,7 @@ public class DadosIniciaiService {
 	private Estado registrarCidades() throws Exception {
 		try {
 			var estado = estadoRepository.findAll().stream().filter(f -> f.getSigla().equals("SP")).findFirst().get();
-			cidadeRepository.saveAll(listaCidade(estado).stream()/* .limit(5) */.toList());
+			cidadeRepository.saveAll(listaCidade(estado).stream().limit(5).toList());
 			System.out.println("Cidades importados...");
 			return estado;
 		} catch (Exception e) {
@@ -105,7 +111,7 @@ public class DadosIniciaiService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	private void registrarBairros() throws Exception {
 		try {
-			bairroRepository.saveAll(listaBairro().stream()/* .limit(5) */.toList());
+			bairroRepository.saveAll(listaBairro().stream().limit(5).toList());
 			System.out.println("Bairro importados...");
 		} catch (Exception e) {
 			throw e;
@@ -140,10 +146,15 @@ public class DadosIniciaiService {
 
 			clienteRepository.saveAll(listaCliente(endereco, empresa));
 
+			var segmento = segmentoClienteService.save(SegmentoCliente.builder().descricao("ALIMENTAR").empresa(empresa).build());
+			segmentoClienteService.save(SegmentoCliente.builder().descricao("PERFUMARIA").empresa(empresa).build());
+			segmentoClienteService.save(SegmentoCliente.builder().descricao("FARMACO").empresa(empresa).build());
+
 			var cliente2 = new Cliente();
 			cliente2.setDocumento("45827425003041");
 			cliente2.setEmpresa(empresa);
 			cliente2.setNome("Teste2");
+			cliente2.setSegmento(segmento);
 			cliente2.setRazaoSocial("Teste2");
 			cliente2.setTipoPessoa(TipoPessoa.JURIDICA);
 			cliente2.setEndereco(endereco);
@@ -174,7 +185,7 @@ public class DadosIniciaiService {
 			usuario.setEmpresas(List.of(empresa, empresa2));
 			usuarioService.save(usuario);
 
-			empresaService.obterTodos(0, "{\"codigo\": \"1\"}");
+			// empresaService.obterTodos(1, "{\"codigo\": \"1\"}");
 
 			// cepService.pesquisar("09980200");
 			// cepService.pesquisar("09185410");

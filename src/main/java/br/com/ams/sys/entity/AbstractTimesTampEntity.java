@@ -3,7 +3,6 @@ package br.com.ams.sys.entity;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;

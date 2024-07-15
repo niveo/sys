@@ -6,7 +6,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
@@ -39,9 +38,13 @@ public class Cliente extends AbstractClient {
 	@JoinColumn(nullable = false, name = "empresa")
 	private Empresa empresa;
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Segmento.class, optional = true)
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SegmentoCliente.class, optional = true)
 	@JoinColumn(name = "segmento")
-	private Segmento segmento;
+	private SegmentoCliente segmento;
+
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = RedeCliente.class, optional = true)
+	@JoinColumn(name = "rede")
+	private RedeCliente rede;
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "clientes", targetEntity = Usuario.class)
 	private List<Usuario> usuarios;

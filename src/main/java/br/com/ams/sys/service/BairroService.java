@@ -1,9 +1,6 @@
 package br.com.ams.sys.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 import br.com.ams.sys.entity.Bairro;
 import br.com.ams.sys.records.BairroCriarDto;

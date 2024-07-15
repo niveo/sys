@@ -1,7 +1,6 @@
 package br.com.ams.sys.service;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 import br.com.ams.sys.entity.Empresa;
 import br.com.ams.sys.records.EmpresaDto;

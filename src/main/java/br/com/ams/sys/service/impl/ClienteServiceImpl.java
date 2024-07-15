@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +16,8 @@ import br.com.ams.sys.common.Constante;
 import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Cliente;
+import br.com.ams.sys.entity.RedeCliente;
+import br.com.ams.sys.entity.SegmentoCliente;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.records.ClienteDto;
@@ -25,13 +25,16 @@ import br.com.ams.sys.records.ClienteListaDto;
 import br.com.ams.sys.records.ClienteRegistrarDto;
 import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
-import br.com.ams.sys.records.SegmentoDto;
+import br.com.ams.sys.records.RedeClienteDto;
+import br.com.ams.sys.records.SegmentoClienteDto;
 import br.com.ams.sys.repository.ClienteRepository;
-import br.com.ams.sys.security.IAuthenticationFacade;
 import br.com.ams.sys.service.BairroService;
+import br.com.ams.sys.service.CacheService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
 import br.com.ams.sys.service.EmpresaService;
+import br.com.ams.sys.service.RedeClienteService;
+import br.com.ams.sys.service.SegmentoClienteService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -39,9 +42,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 public class ClienteServiceImpl implements ClienteService {
 	@Autowired
@@ -60,37 +61,55 @@ public class ClienteServiceImpl implements ClienteService {
 	private EntityManager entityManager;
 
 	@Autowired
-	private IAuthenticationFacade authentication;
+	private CacheService cacheService;
+
+	@Autowired
+	private SegmentoClienteService segmentoClienteService;
+
+	@Autowired
+	private RedeClienteService redeClienteService;
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Cliente save(Cliente entidade) throws Exception {
+		cacheService.clear(RedisConfig.CACHE_EMPRESAS_KEY);
 		return clienteRepository.save(entidade);
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public ClienteDto save(ClienteRegistrarDto entidade) throws Exception {
+	public ClienteDto save(Long codigoEmpresa, ClienteRegistrarDto entidade) throws Exception {
 		var cidade = cidadeService.findByCodigo(entidade.endereco().cidade().codigo());
 		var bairro = bairroService.findByCodigo(entidade.endereco().bairro().codigo());
+
+		SegmentoCliente segmento = null;
+		if (entidade.segmento() != null)
+			segmento = segmentoClienteService.findByCodigo(entidade.segmento().codigo());
+
+		RedeCliente rede = null;
+		if (entidade.rede() != null)
+			rede = redeClienteService.findByCodigo(entidade.rede().codigo());
+
+		var empresa = empresaService.findByCodigo(codigoEmpresa);
 
 		Cliente registrar;
 		if (entidade.codigo() != null) {
 			var emp = clienteRepository.findById(entidade.codigo()).get();
-			registrar = entidade.toCliente(emp, cidade, bairro);
+			registrar = entidade.toCliente(emp);
 		} else {
-			registrar = entidade.toCliente(new Cliente(), cidade, bairro);
+			registrar = entidade.toCliente(new Cliente());
 		}
 
-		var empresaCodigo = authentication.getUserDetails().getEmpresaCodigo();
-		var empresa = empresaService.findByCodigo(empresaCodigo);
 		registrar.setEmpresa(empresa);
-
+		registrar.setSegmento(segmento);
+		registrar.setRede(rede);
 		registrar.getEndereco().setCep(registrar.getEndereco().getCep().replace("-", "").trim());
+		registrar.getEndereco().setBairro(bairro);
+		registrar.getEndereco().setCidade(cidade);
 
 		registrar = save(registrar);
 
-		return obterCodigo(registrar.getCodigo());
+		return obterCodigo(codigoEmpresa, registrar.getCodigo());
 	}
 
 	@Override
@@ -102,12 +121,13 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteByCodigo(Long codigo) {
+		cacheService.clear(RedisConfig.CACHE_SEGMENTO_CLIENTES_KEY);
 		this.clienteRepository.deleteById(codigo);
 	}
 
 	@Override
 	@Cacheable(value = RedisConfig.CACHE_EMPRESAS_KEY)
-	public Page<ClienteListaDto> obterTodos(Integer page, String conditions) throws Exception {
+	public Page<ClienteListaDto> obterTodos(Long codigoEmpresa, Integer page, String conditions) throws Exception {
 		page--;
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(ClienteListaDto.class);
@@ -119,24 +139,26 @@ public class ClienteServiceImpl implements ClienteService {
 
 		query.select(select);
 
-		var predicates = obterPredicates(cb, root, conditions);
+		var predicates = obterPredicates(codigoEmpresa, cb, root, conditions);
 		if (predicates.length > 0)
 			query.where(predicates);
+
+		query.orderBy(cb.asc(root.get("codigo")));
 
 		var registros = entityManager.createQuery(query).setFirstResult(page * Constante.PAGINA_REGISTROS)
 				.setMaxResults(Constante.PAGINA_REGISTROS).getResultList();
 
 		return new RestPage<ClienteListaDto>(registros, page, Constante.PAGINA_REGISTROS,
-				contarRegistros(cb, conditions));
+				contarRegistros(codigoEmpresa, cb, conditions));
 	}
 
-	private Long contarRegistros(CriteriaBuilder cb, String conditions) throws Exception {
+	private Long contarRegistros(Long codigoEmpresa, CriteriaBuilder cb, String conditions) throws Exception {
 
 		// Create Count Query
 		var countQuery = cb.createQuery(Long.class);
 		var root = countQuery.from(Cliente.class);
 
-		var predicates = obterPredicates(cb, root, conditions);
+		var predicates = obterPredicates(codigoEmpresa, cb, root, conditions);
 		if (predicates.length > 0)
 			countQuery.where(predicates);
 
@@ -144,7 +166,8 @@ public class ClienteServiceImpl implements ClienteService {
 		return entityManager.createQuery(countQuery).getSingleResult();
 	}
 
-	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Cliente> root, String conditions) throws Exception {
+	private Predicate[] obterPredicates(Long codigoEmpresa, CriteriaBuilder cb, Root<Cliente> root, String conditions)
+			throws Exception {
 
 		JsonNode filtros = null;
 		var predicates = new ArrayList<Predicate>();
@@ -178,30 +201,31 @@ public class ClienteServiceImpl implements ClienteService {
 			}
 		}
 
-		var userDetails = authentication.getUserDetails();
-		var empresaCodigo = authentication.getUserDetails().getEmpresaCodigo();
-		log.warn("Empresa autenticada {} para usuário {} logado.", empresaCodigo, userDetails.getUsername());
-		if (empresaCodigo != null) {
-			var predValue = cb.equal(root.get("empresa").get("codigo"), empresaCodigo);
+		if (codigoEmpresa != null) {
+			var predValue = cb.equal(root.get("empresa").get("codigo"), codigoEmpresa);
 			predicates.add(predValue);
 		}
 
 		return predicates.toArray(new Predicate[predicates.size()]);
 	}
 
-	public ClienteDto obterCodigo(Long codigo) throws Exception {
+	public ClienteDto obterCodigo(Long codigoEmpresa, Long codigo) throws Exception {
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(ClienteDto.class);
 		var root = query.from(Cliente.class);
 
 		var segmento = root.join("segmento", JoinType.LEFT);
 
+		var rede = root.join("rede", JoinType.LEFT);
+
 		var endereco = root.get("endereco");
 		var cidade = endereco.get("cidade");
 		var estado = cidade.get("estado");
 		var bairro = endereco.get("bairro");
 
-		var selectSegmento = cb.construct(SegmentoDto.class, segmento.get("codigo"), segmento.get("descricao"));
+		var selectSegmento = cb.construct(SegmentoClienteDto.class, segmento.get("codigo"), segmento.get("descricao"));
+
+		var selectRede = cb.construct(RedeClienteDto.class, rede.get("codigo"), rede.get("descricao"));
 
 		var selectEstado = cb.construct(EstadoDto.class, estado.get("codigo"), estado.get("descricao"),
 				estado.get("sigla"));
@@ -215,11 +239,14 @@ public class ClienteServiceImpl implements ClienteService {
 
 		var select = cb.construct(ClienteDto.class, root.get("codigo"), root.get("documento"), root.get("nome"),
 				root.get("razaoSocial"), root.get("observacao"), root.get("telefone"), root.get("email"),
-				root.get("inscricaoEstadual"), root.get("tipoPessoa"), selectSegmento, selectEndereco);
+				root.get("inscricaoEstadual"), root.get("tipoPessoa"), selectEndereco, selectSegmento, selectRede);
 
-		query.select(select).where(cb.equal(root.get("codigo"), codigo));
+		query.select(select).where(cb.equal(root.get("codigo"), codigo),
+				cb.equal(root.get("empresa").get("codigo"), codigoEmpresa));
 
-		return (ClienteDto) entityManager.createQuery(query).getSingleResult();
+		var registro = entityManager.createQuery(query).getSingleResult();
+
+		return registro;
 	}
 
 }

@@ -1,14 +1,11 @@
 package br.com.ams.sys.service.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +16,11 @@ import br.com.ams.sys.common.Constante;
 import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Cidade;
-import br.com.ams.sys.entity.Cliente;
-import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeCriarDto;
 import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.repository.CidadeRepository;
+import br.com.ams.sys.service.CacheService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.EstadoService;
 import jakarta.persistence.EntityManager;
@@ -46,10 +42,15 @@ public class CidadeServiceImpl implements CidadeService {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	@Autowired
+	private CacheService cacheService;
+
+	
 	@Override
 	public Cidade save(Cidade entidade) throws Exception {
 		if (StringUtils.isNotEmpty(entidade.getDescricao()))
 			entidade.setDescricao(entidade.getDescricao().toUpperCase());
+		cacheService.clear(RedisConfig.CACHE_CIDADE_KEY);
 		return cidadeRepository.save(entidade);
 	}
 

@@ -11,12 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.ams.sys.config.RedisConfig;
-import br.com.ams.sys.entity.Cliente;
-import br.com.ams.sys.entity.Empresa;
 import br.com.ams.sys.entity.Role;
 import br.com.ams.sys.entity.UserDetailsImpl;
 import br.com.ams.sys.entity.Usuario;
-import br.com.ams.sys.records.ClienteListaDto;
 import br.com.ams.sys.records.EmpresaBasicoDto;
 import br.com.ams.sys.records.LoginRequest;
 import br.com.ams.sys.records.LoginResponse;

@@ -2,17 +2,13 @@ package br.com.ams.sys.entity;
 
 import java.io.Serializable;
 
-import br.com.ams.sys.records.BairroDto;
-import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.records.EnderecoDto;
-import br.com.ams.sys.records.EstadoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;

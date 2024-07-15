@@ -14,42 +14,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.ams.sys.records.ClienteDto;
-import br.com.ams.sys.records.ClienteRegistrarDto;
-import br.com.ams.sys.service.ClienteService;
+import br.com.ams.sys.records.SegmentoClienteDto;
+import br.com.ams.sys.service.SegmentoClienteService;
 
 @RestController
-@RequestMapping(value = { "/clientes" })
-public class ClienteController {
-
+@RequestMapping(value = { "/segmentosclientes" })
+public class SegmentoClienteController {
 	@Autowired
-	private ClienteService clienteService;
+	private SegmentoClienteService segmentoService;
 
 	@GetMapping
 	PagedModel<?> obterTodos(@RequestHeader(name = "empresa", required = true) Long empresa,
 			@RequestParam(name = "page", defaultValue = "0") Integer page,
-			@RequestParam(name = "condicoes") String condicoes) throws Exception {
-		var clientes = clienteService.obterTodos(empresa, page, condicoes);
+			@RequestParam(name = "condicoes", required = false) String condicoes) throws Exception {
+		var clientes = segmentoService.obterTodos(empresa, page, condicoes);
 		return new PagedModel<>(clientes);
 	}
 
 	@GetMapping("/{codigo}")
-	public ResponseEntity<ClienteDto> obterCodigo(@RequestHeader(name = "empresa", required = true) Long empresa,
+	public ResponseEntity<SegmentoClienteDto> obterCodigo(@RequestHeader(name = "empresa", required = true) Long empresa,
 			@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		var response = clienteService.obterCodigo(empresa, codigo);
-		return new ResponseEntity<ClienteDto>(response, HttpStatus.OK);
+		var response = segmentoService.obterCodigo(empresa, codigo);
+		return new ResponseEntity<SegmentoClienteDto>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<ClienteDto> salvar(@RequestHeader(name = "empresa", required = true) Long empresa,
-			@RequestBody ClienteRegistrarDto request) throws Exception {
-		var registro = clienteService.save(empresa, request);
-		return new ResponseEntity<ClienteDto>(registro, HttpStatus.CREATED);
+	public ResponseEntity<SegmentoClienteDto> salvar(@RequestHeader(name = "empresa", required = true) Long empresa,
+			@RequestBody SegmentoClienteDto request) throws Exception {
+		var registro = segmentoService.save(empresa, request);
+		return new ResponseEntity<SegmentoClienteDto>(registro, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/{codigo}")
 	public ResponseEntity<Void> remover(@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		clienteService.deleteByCodigo(codigo);
+		segmentoService.deleteByCodigo(codigo);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

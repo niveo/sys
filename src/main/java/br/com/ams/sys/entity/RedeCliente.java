@@ -1,7 +1,5 @@
 package br.com.ams.sys.entity;
 
-
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,21 +10,24 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
-
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
-@Builder
+@SuperBuilder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString(of = { "codigo" })
 @Entity
-@Table(indexes = { @Index(columnList = "codigo, cliente", unique = true) })
-public class Segmento extends AbstractTimesTampEntity {
+@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
+public class RedeCliente extends AbstractTimesTampEntity {
 
-	
 	private static final long serialVersionUID = 1L;
 
 	@EqualsAndHashCode.Include
@@ -38,7 +39,7 @@ public class Segmento extends AbstractTimesTampEntity {
 	@Column(nullable = false)
 	private String descricao;
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Cliente.class, optional = false)
-	@JoinColumn(nullable = false, name = "cliente")
-	private Cliente cliente;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
+	@JoinColumn(nullable = false, name = "empresa")
+	private Empresa empresa;
 }

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +24,7 @@ import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.repository.EmpresaRepository;
 import br.com.ams.sys.service.BairroService;
+import br.com.ams.sys.service.CacheService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.EmpresaService;
 import jakarta.persistence.EntityManager;
@@ -50,9 +49,13 @@ public class EmpresaServiceImpl implements EmpresaService {
 	@Autowired
 	private BairroService bairroService;
 
+	@Autowired
+	private CacheService cacheService;
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Empresa save(Empresa entidade) throws Exception {
+		cacheService.clear(RedisConfig.CACHE_CLIENTES_KEY);
 		return empresaRepository.save(entidade);
 	}
 
@@ -121,7 +124,7 @@ public class EmpresaServiceImpl implements EmpresaService {
 	}
 
 	@Override
-	@Cacheable(value = RedisConfig.CACHE_CLIENTES_KEY)
+	@Cacheable(value = RedisConfig.CACHE_EMPRESAS_KEY)
 	public Page<EmpresaListaDto> obterTodos(Integer page, String conditions) throws Exception {
 		page--;
 		var cb = entityManager.getCriteriaBuilder();

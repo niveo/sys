@@ -3,7 +3,6 @@ package br.com.ams.sys.config;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,8 +14,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -49,8 +46,8 @@ public class WebSecurityConfig {
 	// Endpoints que requerem autenticação para serem acessados
 	public static final String[] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = { "/usuarios/test", "/clientes",
 			"/clientes/*", "/cidades", "/cidades/*", "/bairros", "/bairros/*", "/estados", "/estados/*", "/cep/*",
-			"/usuarios/empresas", "/clienteenderecos", "/clienteenderecos/*", "/clientecontatos",
-			"/clientecontatos/*" };
+			"/usuarios/empresas", "/clienteenderecos", "/clienteenderecos/*", "/clientecontatos", "/clientecontatos/*",
+			"/segmentosclientes", "/segmentosclientes/*", "/redesclientes", "/redesclientes/*" };
 
 	// Endpoints que só podem ser acessador por usuários com permissão de cliente
 	public static final String[] ENDPOINTS_CUSTOMER = { "/usuarios/test/customer" };

@@ -14,42 +14,42 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.ams.sys.records.ClienteDto;
-import br.com.ams.sys.records.ClienteRegistrarDto;
-import br.com.ams.sys.service.ClienteService;
+import br.com.ams.sys.records.RedeClienteDto;
+import br.com.ams.sys.records.SegmentoClienteDto;
+import br.com.ams.sys.service.RedeClienteService;
+import br.com.ams.sys.service.SegmentoClienteService;
 
 @RestController
-@RequestMapping(value = { "/clientes" })
-public class ClienteController {
-
+@RequestMapping(value = { "/redesclientes" })
+public class RedeClienteController {
 	@Autowired
-	private ClienteService clienteService;
+	private RedeClienteService redeClienteService;
 
 	@GetMapping
 	PagedModel<?> obterTodos(@RequestHeader(name = "empresa", required = true) Long empresa,
 			@RequestParam(name = "page", defaultValue = "0") Integer page,
-			@RequestParam(name = "condicoes") String condicoes) throws Exception {
-		var clientes = clienteService.obterTodos(empresa, page, condicoes);
+			@RequestParam(name = "condicoes", required = false) String condicoes) throws Exception {
+		var clientes = redeClienteService.obterTodos(empresa, page, condicoes);
 		return new PagedModel<>(clientes);
 	}
 
 	@GetMapping("/{codigo}")
-	public ResponseEntity<ClienteDto> obterCodigo(@RequestHeader(name = "empresa", required = true) Long empresa,
+	public ResponseEntity<RedeClienteDto> obterCodigo(@RequestHeader(name = "empresa", required = true) Long empresa,
 			@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		var response = clienteService.obterCodigo(empresa, codigo);
-		return new ResponseEntity<ClienteDto>(response, HttpStatus.OK);
+		var response = redeClienteService.obterCodigo(empresa, codigo);
+		return new ResponseEntity<RedeClienteDto>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<ClienteDto> salvar(@RequestHeader(name = "empresa", required = true) Long empresa,
-			@RequestBody ClienteRegistrarDto request) throws Exception {
-		var registro = clienteService.save(empresa, request);
-		return new ResponseEntity<ClienteDto>(registro, HttpStatus.CREATED);
+	public ResponseEntity<RedeClienteDto> salvar(@RequestHeader(name = "empresa", required = true) Long empresa,
+			@RequestBody RedeClienteDto request) throws Exception {
+		var registro = redeClienteService.save(empresa, request);
+		return new ResponseEntity<RedeClienteDto>(registro, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/{codigo}")
 	public ResponseEntity<Void> remover(@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		clienteService.deleteByCodigo(codigo);
+		redeClienteService.deleteByCodigo(codigo);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
