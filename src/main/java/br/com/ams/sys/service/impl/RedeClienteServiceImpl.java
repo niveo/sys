@@ -93,8 +93,6 @@ public class RedeClienteServiceImpl implements RedeClienteService {
 	public Page<RedeClienteDto> obterTodos(Long codigoEmpresa, Integer page, String conditions) throws Exception {
 		page--;
 
-		System.out.println(conditions);
-
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(RedeClienteDto.class);
 		var root = query.from(RedeCliente.class);

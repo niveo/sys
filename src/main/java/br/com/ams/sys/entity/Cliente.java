@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
@@ -27,9 +28,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@ToString(exclude = { "usuarios", "contatos", "enderecos", "empresa", "segmento" })
-@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true), @Index(columnList = "cep") })
-public class Cliente extends AbstractClient {
+@ToString(exclude = { "usuarios", "contatos", "enderecos", "empresa", "segmento", "tabela" })
+@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true), @Index(columnList = "cep"),
+		@Index(columnList = "codigoExterno") })
+public class Cliente extends AbstractClienteEmpresa {
 
 	private static final long serialVersionUID = 1L;
 
@@ -38,13 +40,20 @@ public class Cliente extends AbstractClient {
 	@JoinColumn(nullable = false, name = "empresa")
 	private Empresa empresa;
 
+	@Column
+	private String codigoExterno;
+
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SegmentoCliente.class, optional = true)
-	@JoinColumn(name = "segmento")
+	@JoinColumn(name = "segmento", nullable = true)
 	private SegmentoCliente segmento;
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = RedeCliente.class, optional = true)
-	@JoinColumn(name = "rede")
+	@JoinColumn(name = "rede", nullable = true)
 	private RedeCliente rede;
+
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = TabelaPreco.class, optional = true)
+	@JoinColumn(name = "tabela", nullable = true)
+	private TabelaPreco tabela;
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "clientes", targetEntity = Usuario.class)
 	private List<Usuario> usuarios;

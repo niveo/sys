@@ -18,6 +18,7 @@ import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.Cliente;
 import br.com.ams.sys.entity.RedeCliente;
 import br.com.ams.sys.entity.SegmentoCliente;
+import br.com.ams.sys.entity.TabelaPreco;
 import br.com.ams.sys.records.BairroDto;
 import br.com.ams.sys.records.CidadeDto;
 import br.com.ams.sys.records.ClienteDto;
@@ -27,6 +28,7 @@ import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.records.RedeClienteDto;
 import br.com.ams.sys.records.SegmentoClienteDto;
+import br.com.ams.sys.records.TabelaPrecoDto;
 import br.com.ams.sys.repository.ClienteRepository;
 import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CacheService;
@@ -35,6 +37,7 @@ import br.com.ams.sys.service.ClienteService;
 import br.com.ams.sys.service.EmpresaService;
 import br.com.ams.sys.service.RedeClienteService;
 import br.com.ams.sys.service.SegmentoClienteService;
+import br.com.ams.sys.service.TabelaPrecoService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -69,6 +72,9 @@ public class ClienteServiceImpl implements ClienteService {
 	@Autowired
 	private RedeClienteService redeClienteService;
 
+	@Autowired
+	private TabelaPrecoService tabelaPrecoService;
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Cliente save(Cliente entidade) throws Exception {
@@ -90,6 +96,10 @@ public class ClienteServiceImpl implements ClienteService {
 		if (entidade.rede() != null)
 			rede = redeClienteService.findByCodigo(entidade.rede().codigo());
 
+		TabelaPreco tabela = null;
+		if (entidade.tabela() != null)
+			tabela = tabelaPrecoService.findByCodigo(entidade.tabela().codigo());
+
 		var empresa = empresaService.findByCodigo(codigoEmpresa);
 
 		Cliente registrar;
@@ -102,6 +112,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 		registrar.setEmpresa(empresa);
 		registrar.setSegmento(segmento);
+		registrar.setTabela(tabela);
 		registrar.setRede(rede);
 		registrar.getEndereco().setCep(registrar.getEndereco().getCep().replace("-", "").trim());
 		registrar.getEndereco().setBairro(bairro);
@@ -215,8 +226,8 @@ public class ClienteServiceImpl implements ClienteService {
 		var root = query.from(Cliente.class);
 
 		var segmento = root.join("segmento", JoinType.LEFT);
-
 		var rede = root.join("rede", JoinType.LEFT);
+		var tabela = root.join("tabela", JoinType.LEFT);
 
 		var endereco = root.get("endereco");
 		var cidade = endereco.get("cidade");
@@ -226,6 +237,8 @@ public class ClienteServiceImpl implements ClienteService {
 		var selectSegmento = cb.construct(SegmentoClienteDto.class, segmento.get("codigo"), segmento.get("descricao"));
 
 		var selectRede = cb.construct(RedeClienteDto.class, rede.get("codigo"), rede.get("descricao"));
+
+		var selectTabela = cb.construct(TabelaPrecoDto.class, tabela.get("codigo"), tabela.get("descricao"));
 
 		var selectEstado = cb.construct(EstadoDto.class, estado.get("codigo"), estado.get("descricao"),
 				estado.get("sigla"));
@@ -239,7 +252,8 @@ public class ClienteServiceImpl implements ClienteService {
 
 		var select = cb.construct(ClienteDto.class, root.get("codigo"), root.get("documento"), root.get("nome"),
 				root.get("razaoSocial"), root.get("observacao"), root.get("telefone"), root.get("email"),
-				root.get("inscricaoEstadual"), root.get("tipoPessoa"), selectEndereco, selectSegmento, selectRede);
+				root.get("inscricaoEstadual"), root.get("tipoPessoa"), selectEndereco, selectSegmento, selectRede,
+				selectTabela);
 
 		query.select(select).where(cb.equal(root.get("codigo"), codigo),
 				cb.equal(root.get("empresa").get("codigo"), codigoEmpresa));

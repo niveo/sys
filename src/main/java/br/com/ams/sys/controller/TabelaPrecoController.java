@@ -14,42 +14,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.ams.sys.records.ClienteDto;
-import br.com.ams.sys.records.ClienteRegistrarDto;
-import br.com.ams.sys.service.ClienteService;
+import br.com.ams.sys.records.TabelaPrecoDto;
+import br.com.ams.sys.service.TabelaPrecoService;
 
 @RestController
-@RequestMapping(value = { "/clientes" })
-public class ClienteController {
-
+@RequestMapping(value = { "/tabelaprecos" })
+public class TabelaPrecoController {
 	@Autowired
-	private ClienteService clienteService;
+	private TabelaPrecoService tabelaPrecoService;
 
 	@GetMapping
 	PagedModel<?> obterTodos(@RequestHeader(name = "empresa", required = true) Long empresa,
 			@RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "condicoes", required = false) String condicoes) throws Exception {
-		var clientes = clienteService.obterTodos(empresa, page, condicoes);
+		var clientes = tabelaPrecoService.obterTodos(empresa, page, condicoes);
 		return new PagedModel<>(clientes);
 	}
 
 	@GetMapping("/{codigo}")
-	public ResponseEntity<ClienteDto> obterCodigo(@RequestHeader(name = "empresa", required = true) Long empresa,
+	public ResponseEntity<TabelaPrecoDto> obterCodigo(@RequestHeader(name = "empresa", required = true) Long empresa,
 			@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		var response = clienteService.obterCodigo(empresa, codigo);
-		return new ResponseEntity<ClienteDto>(response, HttpStatus.OK);
+		var response = tabelaPrecoService.obterCodigo(empresa, codigo);
+		return new ResponseEntity<TabelaPrecoDto>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<ClienteDto> salvar(@RequestHeader(name = "empresa", required = true) Long empresa,
-			@RequestBody ClienteRegistrarDto request) throws Exception {
-		var registro = clienteService.save(empresa, request);
-		return new ResponseEntity<ClienteDto>(registro, HttpStatus.CREATED);
+	public ResponseEntity<TabelaPrecoDto> salvar(@RequestHeader(name = "empresa", required = true) Long empresa,
+			@RequestBody TabelaPrecoDto request) throws Exception {
+		var registro = tabelaPrecoService.save(empresa, request);
+		return new ResponseEntity<TabelaPrecoDto>(registro, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/{codigo}")
 	public ResponseEntity<Void> remover(@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		clienteService.deleteByCodigo(codigo);
+		tabelaPrecoService.deleteByCodigo(codigo);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

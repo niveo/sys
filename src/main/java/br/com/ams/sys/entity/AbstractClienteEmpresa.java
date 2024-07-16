@@ -34,7 +34,7 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @GroupSequenceProvider(ClienteGroupSequenceProvider.class)
-public abstract class AbstractClient extends AbstractTimesTampEntity {
+public abstract class AbstractClienteEmpresa extends AbstractTimesTampEntity {
 
 	private static final long serialVersionUID = 1L;
 

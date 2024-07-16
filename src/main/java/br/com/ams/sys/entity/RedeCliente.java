@@ -18,28 +18,18 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Data
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(of = { "codigo" })
 @Entity
-@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true) })
-public class RedeCliente extends AbstractTimesTampEntity {
+@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true), @Index(columnList = "codigoExterno") })
+public class RedeCliente extends BaseEntityEmpresa {
 
 	private static final long serialVersionUID = 1L;
-
-	@EqualsAndHashCode.Include
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
-	private Long codigo;
 
 	@Column(nullable = false)
 	private String descricao;
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
-	@JoinColumn(nullable = false, name = "empresa")
-	private Empresa empresa;
 }

@@ -2,6 +2,7 @@ package br.com.ams.sys.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,7 +11,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -34,25 +37,25 @@ public abstract class AbstractTimesTampEntity implements Serializable {
 	@Basic
 	@CreationTimestamp()
 	@Column(name = "cadastrado")
-	@JsonDeserialize(using = LocalDateDeserializer.class)
-	@JsonSerialize(using = LocalDateSerializer.class)
-	private LocalDate dataCadastrado;
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	private LocalDateTime dataCadastrado;
 
 	@Basic
 	@UpdateTimestamp
 	@Column(name = "alterado")
-	@JsonDeserialize(using = LocalDateDeserializer.class)
-	@JsonSerialize(using = LocalDateSerializer.class)
-	private LocalDate dataAlterado;
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	private LocalDateTime dataAlterado;
 
 	@PrePersist
 	public void onInsert() {
-		dataCadastrado = LocalDate.now(ZoneId.systemDefault());
+		dataCadastrado = LocalDateTime.now(ZoneId.systemDefault());
 		dataAlterado = dataCadastrado;
 	}
 
 	@PreUpdate
 	public void onUpdate() {
-		dataAlterado = LocalDate.now(ZoneId.systemDefault());
+		dataAlterado = LocalDateTime.now(ZoneId.systemDefault());
 	}
 }

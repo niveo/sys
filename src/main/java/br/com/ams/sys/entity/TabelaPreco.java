@@ -5,14 +5,15 @@ import java.util.List;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
@@ -21,14 +22,22 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
-@ToString(exclude = "usuarios")
-public class Empresa extends AbstractClienteEmpresa {
+@Table(indexes = { @Index(columnList = "codigo, empresa", unique = true), @Index(columnList = "codigoExterno") })
+public class TabelaPreco extends BaseEntityEmpresa {
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(nullable = false)
+	private String descricao;
+
+	@Column(nullable = false)
+	private Boolean ativo = false;
+
+	@Column
+	private String observacao;
+
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	@ManyToMany(mappedBy = "empresas", targetEntity = Usuario.class)
-	private List<Usuario> usuarios;
+	@OneToMany(mappedBy = "tabela", targetEntity = TabelaPrecoLancamento.class)
+	private List<TabelaPrecoLancamento> lancamentos;
 
 }

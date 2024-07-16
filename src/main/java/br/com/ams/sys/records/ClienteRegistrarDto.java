@@ -8,7 +8,7 @@ import lombok.Builder;
 @Builder
 public record ClienteRegistrarDto(Long codigo, String documento, String nome, String razaoSocial, String observacao,
 		String telefone, String email, String inscricaoEstadual, TipoPessoa tipoPessoa, EnderecoDto endereco,
-		SegmentoClienteDto segmento, RedeClienteDto rede) {
+		SegmentoClienteDto segmento, RedeClienteDto rede, TabelaPrecoDto tabela) {
 
 	public Cliente toCliente(Cliente empresa) {
 		return empresa.toBuilder().codigo(codigo).tipoPessoa(tipoPessoa).documento(documento).nome(nome)

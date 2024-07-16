@@ -2,7 +2,6 @@ package br.com.ams.sys.service.impl;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -16,12 +15,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.com.ams.sys.common.Constante;
 import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.config.RedisConfig;
-import br.com.ams.sys.entity.SegmentoCliente;
-import br.com.ams.sys.records.SegmentoClienteDto;
-import br.com.ams.sys.repository.SegmentoClienteRepository;
+import br.com.ams.sys.entity.Produto;
+import br.com.ams.sys.records.ProdutoDto;
+import br.com.ams.sys.repository.ProdutoRepository;
 import br.com.ams.sys.service.CacheService;
 import br.com.ams.sys.service.EmpresaService;
-import br.com.ams.sys.service.SegmentoClienteService;
+import br.com.ams.sys.service.ProdutoService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -31,57 +30,52 @@ import jakarta.persistence.criteria.Root;
 
 @Service
 @Transactional(readOnly = true)
-public class SegmentoClienteServiceImpl implements SegmentoClienteService {
+public class ProdutoServiceImpl implements ProdutoService {
+	@Autowired
+	private ProdutoRepository produtoRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Autowired
-	private SegmentoClienteRepository segmentoRepository;
+	private CacheService cacheService;
 
 	@Autowired
 	private EmpresaService empresaService;
 
-	@Autowired
-	private CacheService cacheService;
-
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public SegmentoCliente save(SegmentoCliente entidade) throws Exception {
-		if (StringUtils.isNotEmpty(entidade.getDescricao()))
-			entidade.setDescricao(entidade.getDescricao().toUpperCase());
-
-		cacheService.clear(RedisConfig.CACHE_REDE_CLIENTES_KEY);
-
-		return segmentoRepository.save(entidade);
-
+	public Produto save(Produto entidade) throws Exception {
+		cacheService.clear(RedisConfig.CACHE_PRODUTO_KEY);
+		return produtoRepository.save(entidade);
 	}
 
 	@Override
-	public SegmentoCliente findByCodigo(Long codigo) throws Exception {
-		return this.segmentoRepository.findById(codigo)
+	public Produto findByCodigo(Long codigo) throws Exception {
+		return this.produtoRepository.findById(codigo)
 				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteByCodigo(Long codigo) {
-		cacheService.clear(RedisConfig.CACHE_REDE_CLIENTES_KEY);
-		this.segmentoRepository.deleteById(codigo);
+		cacheService.clear(RedisConfig.CACHE_PRODUTO_KEY);
+		this.produtoRepository.deleteById(codigo);
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public SegmentoClienteDto save(Long codigoEmpresa, SegmentoClienteDto entity) throws Exception {
+	public ProdutoDto save(Long codigoEmpresa, ProdutoDto entity) throws Exception {
 
-		SegmentoCliente registrar;
+		Produto registrar;
 
 		var empresaEntity = empresaService.findByCodigo(codigoEmpresa);
 
 		if (entity.codigo() != null) {
-			var emp = segmentoRepository.findById(entity.codigo()).get();
-			registrar = entity.toSegmentoCliente(emp, empresaEntity);
+			var emp = produtoRepository.findById(entity.codigo()).get();
+			registrar = entity.toProduto(emp, empresaEntity);
 		} else {
-			registrar = entity.toSegmentoCliente(new SegmentoCliente(), empresaEntity);
+			registrar = entity.toProduto(new Produto(), empresaEntity);
 		}
 
 		registrar = save(registrar);
@@ -89,15 +83,15 @@ public class SegmentoClienteServiceImpl implements SegmentoClienteService {
 		return obterCodigo(codigoEmpresa, registrar.getCodigo());
 	}
 
-	@Cacheable(value = RedisConfig.CACHE_REDE_CLIENTES_KEY)
-	public Page<SegmentoClienteDto> obterTodos(Long codigoEmpresa, Integer page, String conditions) throws Exception {
+	@Cacheable(value = RedisConfig.CACHE_PRODUTO_KEY)
+	public Page<ProdutoDto> obterTodos(Long codigoEmpresa, Integer page, String conditions) throws Exception {
 		page--;
 
 		var cb = entityManager.getCriteriaBuilder();
-		var query = cb.createQuery(SegmentoClienteDto.class);
-		var root = query.from(SegmentoCliente.class);
+		var query = cb.createQuery(ProdutoDto.class);
+		var root = query.from(Produto.class);
 
-		var select = cb.construct(SegmentoClienteDto.class, root.get("codigo"), root.get("descricao"));
+		var select = cb.construct(ProdutoDto.class, root.get("codigo"), root.get("descricao"), root.get("referencia"));
 
 		query.select(select);
 
@@ -110,12 +104,12 @@ public class SegmentoClienteServiceImpl implements SegmentoClienteService {
 		var registros = entityManager.createQuery(query).setFirstResult(page * Constante.PAGINA_REGISTROS)
 				.setMaxResults(Constante.PAGINA_REGISTROS).getResultList();
 
-		return new RestPage<SegmentoClienteDto>(registros, page, Constante.PAGINA_REGISTROS,
+		return new RestPage<ProdutoDto>(registros, page, Constante.PAGINA_REGISTROS,
 				contarRegistros(cb, codigoEmpresa, conditions));
 	}
 
-	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<SegmentoCliente> root, Long empresaCodigo,
-			String conditions) throws Exception {
+	private Predicate[] obterPredicates(CriteriaBuilder cb, Root<Produto> root, Long empresaCodigo, String conditions)
+			throws Exception {
 
 		JsonNode filtros = null;
 		var predicates = new ArrayList<Predicate>();
@@ -130,14 +124,32 @@ public class SegmentoClienteServiceImpl implements SegmentoClienteService {
 				if (node.asText().isEmpty())
 					continue;
 
-				if ("descricao".equals(name)) {
+				switch (name) {
+				case "codigo": {
+					var predValue = cb.equal(root.get("codigo"), node.asLong());
+					predicates.add(cb.or(predValue));
+					break;
+				}
+				case "descricao": {
 					var predValue = cb.like(root.get("descricao"), "%" + node.asText().toUpperCase() + "%");
 					predicates.add(predValue);
+					break;
 				}
+				case "referencia": {
+					var predValue = cb.like(root.get("referencia"), "%" + node.asText().toUpperCase() + "%");
+					predicates.add(predValue);
+					break;
+				}
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + name);
+				}
+
 			}
 		}
 
-		if (empresaCodigo != null) {
+		if (empresaCodigo != null)
+
+		{
 			var predValue = cb.equal(root.get("empresa").get("codigo"), empresaCodigo);
 			predicates.add(predValue);
 		}
@@ -149,7 +161,7 @@ public class SegmentoClienteServiceImpl implements SegmentoClienteService {
 
 		// Create Count Query
 		var countQuery = cb.createQuery(Long.class);
-		var root = countQuery.from(SegmentoCliente.class);
+		var root = countQuery.from(Produto.class);
 
 		var predicates = obterPredicates(cb, root, codigoEmpresa, conditions);
 		if (predicates.length > 0)
@@ -160,13 +172,13 @@ public class SegmentoClienteServiceImpl implements SegmentoClienteService {
 	}
 
 	@Override
-	public SegmentoClienteDto obterCodigo(Long codigoEmpresa, Long codigo) {
+	public ProdutoDto obterCodigo(Long codigoEmpresa, Long codigo) {
 
 		var cb = entityManager.getCriteriaBuilder();
-		var query = cb.createQuery(SegmentoClienteDto.class);
-		var root = query.from(SegmentoCliente.class);
+		var query = cb.createQuery(ProdutoDto.class);
+		var root = query.from(Produto.class);
 
-		var select = cb.construct(SegmentoClienteDto.class, root.get("codigo"), root.get("descricao"));
+		var select = cb.construct(ProdutoDto.class, root.get("codigo"), root.get("descricao"), root.get("referencia"));
 
 		query.select(select).where(cb.equal(root.get("codigo"), codigo),
 				cb.equal(root.get("empresa").get("codigo"), codigoEmpresa));
