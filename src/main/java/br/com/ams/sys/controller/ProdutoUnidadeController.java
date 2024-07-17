@@ -13,31 +13,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.ams.sys.records.ClienteEnderecoDto;
-import br.com.ams.sys.service.ClienteEnderecoService;
+import br.com.ams.sys.records.ProdutoUnidadeDto;
+import br.com.ams.sys.service.ProdutoUnidadeService;
 
 @RestController
-@RequestMapping(value = { "/clienteenderecos" })
-public class ClienteEnderecoController {
+@RequestMapping(value = { "/produtounidades" })
+public class ProdutoUnidadeController {
+
 	@Autowired
-	private ClienteEnderecoService clienteEnderecoService;
+	private ProdutoUnidadeService produtoUnidadeService;
 
 	@GetMapping("/{codigo}")
-	public ResponseEntity<List<ClienteEnderecoDto>> obterCodigo(
+	public ResponseEntity<List<ProdutoUnidadeDto>> findByProduto(
 			@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		var response = clienteEnderecoService.findByCliente(codigo);
-		return new ResponseEntity<List<ClienteEnderecoDto>>(response, HttpStatus.OK);
+		var response = produtoUnidadeService.findByProduto(codigo);
+		return new ResponseEntity<List<ProdutoUnidadeDto>>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<ClienteEnderecoDto> save(@RequestBody ClienteEnderecoDto registro) throws Exception {
-		var response = clienteEnderecoService.save(registro);
-		return new ResponseEntity<ClienteEnderecoDto>(response, HttpStatus.OK);
+	public ResponseEntity<ProdutoUnidadeDto> save(@RequestBody ProdutoUnidadeDto registro) throws Exception {
+		var response = produtoUnidadeService.save(registro);
+		return new ResponseEntity<ProdutoUnidadeDto>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{codigo}")
 	public ResponseEntity<?> delete(@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
-		clienteEnderecoService.deleteByCodigo(codigo);
+		produtoUnidadeService.deleteByCodigo(codigo);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

@@ -25,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Entity
 @Table(indexes = { @Index(columnList = "codigo, empresa", unique = true), @Index(columnList = "codigoExterno") })
-public class RedeCliente extends BaseEntityEmpresa {
+public class RedeCliente extends BaseEntityEmpresaExterno {
 
 	private static final long serialVersionUID = 1L;
 

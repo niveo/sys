@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 
 import br.com.ams.sys.entity.Produto;
 import br.com.ams.sys.records.ProdutoDto;
+import br.com.ams.sys.records.ProdutoListaDto;
 
 public interface ProdutoService {
 	Produto save(Produto entidade) throws Exception;
@@ -12,7 +13,7 @@ public interface ProdutoService {
 
 	void deleteByCodigo(Long codigo);
 
-	Page<ProdutoDto> obterTodos(Long empresa, Integer page, String conditions) throws Exception;
+	Page<ProdutoListaDto> obterTodos(Long empresa, Integer page, String conditions) throws Exception;
 
 	ProdutoDto save(Long empresa, ProdutoDto entidade) throws Exception;
 

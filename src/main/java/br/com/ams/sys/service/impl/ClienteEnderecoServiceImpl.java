@@ -29,8 +29,8 @@ public class ClienteEnderecoServiceImpl implements ClienteEnderecoService {
 	private BairroService bairroService;
 
 	@Override
-	public List<ClienteEnderecoDto> findByCliente(Long cliente) {
-		var registros = clienteEnderecoRepository.findByCliente(cliente);
+	public List<ClienteEnderecoDto> findByCliente(Long codigo) {
+		var registros = clienteEnderecoRepository.findByCliente(codigo);
 		return registros.stream().map(mp -> mp.toClienteEnderecoDto()).toList();
 	}
 

@@ -6,7 +6,7 @@ import br.com.ams.sys.entity.ClienteEndereco;
 import br.com.ams.sys.records.ClienteEnderecoDto;
 
 public interface ClienteEnderecoService {
-	List<ClienteEnderecoDto> findByCliente(Long cliente);
+	List<ClienteEnderecoDto> findByCliente(Long codigo);
 
 	ClienteEndereco save(ClienteEndereco registro) throws Exception;
 

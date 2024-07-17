@@ -21,8 +21,8 @@ public class ClienteContatoServiceImpl implements ClienteContatoService {
 	private ClienteService clienteService;
 
 	@Override
-	public List<ClienteContatoDto> findByCliente(Long cliente) {
-		var registros = clienteContatoRepository.findByCliente(cliente);
+	public List<ClienteContatoDto> findByCliente(Long codigo) {
+		var registros = clienteContatoRepository.findByCliente(codigo);
 		return registros.stream().map(mp -> mp.toClienteContatoDto()).toList();
 	}
 

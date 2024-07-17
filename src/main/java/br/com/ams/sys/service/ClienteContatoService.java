@@ -6,7 +6,7 @@ import br.com.ams.sys.entity.ClienteContato;
 import br.com.ams.sys.records.ClienteContatoDto;
 
 public interface ClienteContatoService {
-	List<ClienteContatoDto> findByCliente(Long cliente);
+	List<ClienteContatoDto> findByCliente(Long codigo);
 
 	ClienteContato save(ClienteContato registro) throws Exception;
 

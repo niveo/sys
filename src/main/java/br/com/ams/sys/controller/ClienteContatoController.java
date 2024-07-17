@@ -22,10 +22,10 @@ public class ClienteContatoController {
 	@Autowired
 	private ClienteContatoService clienteContatoService;
 
-	@GetMapping("/{cliente}")
+	@GetMapping("/{codigo}")
 	public ResponseEntity<List<ClienteContatoDto>> findByCliente(
-			@PathVariable(name = "cliente", required = true) Long cliente) throws Exception {
-		var response = clienteContatoService.findByCliente(cliente);
+			@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
+		var response = clienteContatoService.findByCliente(codigo);
 		return new ResponseEntity<List<ClienteContatoDto>>(response, HttpStatus.OK);
 	}
 

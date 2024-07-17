@@ -23,14 +23,15 @@ import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.entity.Cliente;
 import br.com.ams.sys.entity.ClienteContato;
 import br.com.ams.sys.entity.ClienteEndereco;
-import br.com.ams.sys.entity.ConfiguracaoView;
-import br.com.ams.sys.entity.ConfiguracaoViewFiltro;
+import br.com.ams.sys.entity.ConfiguracaoGrade;
+import br.com.ams.sys.entity.ConfiguracaoGradeFiltro;
 import br.com.ams.sys.entity.Empresa;
 import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.entity.Estado;
 import br.com.ams.sys.entity.Produto;
 import br.com.ams.sys.entity.SegmentoCliente;
 import br.com.ams.sys.entity.TabelaPreco;
+import br.com.ams.sys.entity.Unidade;
 import br.com.ams.sys.enuns.RoleName;
 import br.com.ams.sys.enuns.TipoPessoa;
 import br.com.ams.sys.records.SegmentoClienteDto;
@@ -40,11 +41,12 @@ import br.com.ams.sys.repository.CidadeRepository;
 import br.com.ams.sys.repository.ClienteRepository;
 import br.com.ams.sys.repository.EstadoRepository;
 import br.com.ams.sys.repository.ProdutoRepository;
+import br.com.ams.sys.repository.UnidadeRepository;
 import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CEPService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
-import br.com.ams.sys.service.ConfiguracaoViewService;
+import br.com.ams.sys.service.ConfiguracaoGradeService;
 import br.com.ams.sys.service.EmpresaService;
 import br.com.ams.sys.service.EstadoService;
 import br.com.ams.sys.service.ProdutoService;
@@ -106,7 +108,10 @@ public class DadosIniciaiService {
 	private ProdutoRepository produtoRepository;
 
 	@Autowired
-	private ConfiguracaoViewService configuracaoViewService;
+	private ConfiguracaoGradeService configuracaoViewService;
+
+	@Autowired
+	private UnidadeRepository unidadeRepository;
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	private void registrarEstados() throws Exception {
@@ -149,42 +154,46 @@ public class DadosIniciaiService {
 	public void iniciar() {
 		try {
 
-			configuracaoViewService.save(ConfiguracaoView.builder().caminho("/produtos")
-					.caminhoEditar("produtos_detalhe").listaItem("LT_01").caminhoInserir("produtos_cadastrar")
-					.filtros(Set.of(
-							ConfiguracaoViewFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
-									.posicao(0).campo("codigo").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
-									.campo("descricao").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("Referência").posicao(2)
-									.campo("referencia").requerido(false).build()))
-					.build());
+			var s1 = ConfiguracaoGrade.builder().caminho("/produtos").caminhoEditar("produtos_detalhe")
+					.listaItem("LT_01").caminhoInserir("produtos_cadastrar").build();
+			s1.setFiltros(List.of(
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
+							.campo("codigo").requerido(false).configuracao(s1).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
+							.campo("descricao").requerido(false).configuracao(s1).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Referência").posicao(2)
+							.campo("referencia").requerido(false).configuracao(s1).build()));
+			configuracaoViewService.save(s1);
 
-			configuracaoViewService.save(ConfiguracaoView.builder().caminho("/empresas")
-					.caminhoEditar("empresas_detalhe").listaItem("LT_02").caminhoInserir("empresas_cadastrar")
-					.filtros(Set.of(
-							ConfiguracaoViewFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
-									.posicao(0).campo("codigo").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("Nome").posicao(1)
-									.campo("nome").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("Razão Social").posicao(2)
-									.campo("razaoSocial").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
-									.campo("documento").requerido(false).build()))
-					.build());
+			var s2 = ConfiguracaoGrade.builder().caminho("/empresas").caminhoEditar("empresas_detalhe")
+					.listaItem("LT_02").caminhoInserir("empresas_cadastrar").build();
 
-			configuracaoViewService.save(ConfiguracaoView.builder().caminho("/clientes")
-					.caminhoEditar("clientes_detalhe").listaItem("LT_03").caminhoInserir("clientes_cadastrar")
-					.filtros(Set.of(
-							ConfiguracaoViewFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
-									.posicao(0).campo("codigo").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("Nome").posicao(1)
-									.campo("nome").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("Razão Social").posicao(2)
-									.campo("razaoSocial").requerido(false).build(),
-							ConfiguracaoViewFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
-									.campo("documento").requerido(false).build()))
-					.build());
+			s2.setFiltros(List.of(
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
+							.campo("codigo").requerido(false).configuracao(s2).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Nome").posicao(1).campo("nome")
+							.requerido(false).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Razão Social").posicao(2)
+							.campo("razaoSocial").requerido(false).configuracao(s2).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
+							.campo("documento").requerido(false).configuracao(s2).build()));
+
+			configuracaoViewService.save(s2);
+
+			var s3 = ConfiguracaoGrade.builder().caminho("/clientes").caminhoEditar("clientes_detalhe")
+					.listaItem("LT_03").caminhoInserir("clientes_cadastrar").build();
+
+			s3.setFiltros(List.of(
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
+							.campo("codigo").requerido(false).configuracao(s3).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Nome").posicao(1).campo("nome")
+							.requerido(false).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Razão Social").posicao(2)
+							.campo("razaoSocial").requerido(false).configuracao(s3).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
+							.campo("documento").requerido(false).configuracao(s3).build()));
+
+			configuracaoViewService.save(s3);
 
 			registrarEstados();
 			registrarBairros();
@@ -202,6 +211,12 @@ public class DadosIniciaiService {
 			var empresa2 = empresaService.save(Empresa.builder().endereco(endereco).tipoPessoa(TipoPessoa.JURIDICA)
 					.nome("MARIAH PRODUTOS DE BELEZA LTDA").documento("04220791000116")
 					.razaoSocial("MARIAH PRODUTOS DE BELEZA LTDA").build());
+
+			unidadeRepository
+					.saveAll(List.of(Unidade.builder().empresa(empresa).descricao("UNIDADE").sigla("UN").build(),
+							Unidade.builder().empresa(empresa).descricao("CAIXA").sigla("CX").build())
+
+					);
 
 			tabelaPrecoService.save(TabelaPreco.builder().descricao("REDE 10%").ativo(true).empresa(empresa).build());
 

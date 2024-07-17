@@ -48,7 +48,8 @@ public class WebSecurityConfig {
 			"/clientes/*", "/cidades", "/cidades/*", "/bairros", "/bairros/*", "/estados", "/estados/*", "/cep/*",
 			"/usuarios/empresas", "/clienteenderecos", "/clienteenderecos/*", "/clientecontatos", "/clientecontatos/*",
 			"/segmentosclientes", "/segmentosclientes/*", "/redesclientes", "/redesclientes/*", "/tabelaprecos",
-			"/tabelaprecos/*", "/produtos", "/produtos/*", "/configuracaoviews", "/configuracaoviews/*" };
+			"/tabelaprecos/*", "/produtos", "/produtos/*", "/configuracaograde", "/configuracaograde/*", "/unidades",
+			"/unidades/*", "/produtounidades", "/produtounidades/*" };
 
 	// Endpoints que só podem ser acessador por usuários com permissão de cliente
 	public static final String[] ENDPOINTS_CUSTOMER = { "/usuarios/test/customer" };

@@ -5,33 +5,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.ams.sys.entity.ConfiguracaoView;
-import br.com.ams.sys.records.ConfiguracaoViewDto;
-import br.com.ams.sys.repository.ConfiguracaoViewRepository;
-import br.com.ams.sys.service.ConfiguracaoViewService;
+import br.com.ams.sys.entity.ConfiguracaoGrade;
+import br.com.ams.sys.records.ConfiguracaoGradeDto;
+import br.com.ams.sys.repository.ConfiguracaoGradeRepository;
+import br.com.ams.sys.service.ConfiguracaoGradeService;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 @Transactional(readOnly = true)
-public class ConfiguracaoViewServiceImpl implements ConfiguracaoViewService {
+public class ConfiguracaoGradeServiceImpl implements ConfiguracaoGradeService {
 	@Autowired
-	private ConfiguracaoViewRepository configuracaoViewRepository;
+	private ConfiguracaoGradeRepository configuracaoViewRepository;
 
 	@Override
-	public ConfiguracaoViewDto obterCodigo(Long empresa, Long codigo) {
+	public ConfiguracaoGradeDto obterCodigo(Long empresa, Long codigo) {
 		var registro = configuracaoViewRepository.findById(codigo)
 				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));
+		if(registro.getFiltros() != null) {
+			registro.getFiltros().size();
+		}
 		return registro.toConfiguracaoViewDto();
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public ConfiguracaoView save(ConfiguracaoView entidade) throws Exception {
+	public ConfiguracaoGrade save(ConfiguracaoGrade entidade) throws Exception {
 		return configuracaoViewRepository.save(entidade);
 	}
 
 	@Override
-	public ConfiguracaoView findByCodigo(Long codigo) throws Exception {
+	public ConfiguracaoGrade findByCodigo(Long codigo) throws Exception {
 		return configuracaoViewRepository.findById(codigo)
 				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));
 	}

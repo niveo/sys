@@ -11,6 +11,6 @@ import br.com.ams.sys.entity.ClienteContato;
 
 @Transactional(readOnly = true)
 public interface ClienteContatoRepository extends JpaRepository<ClienteContato, Long> {
-	@Query("Select c From ClienteContato c where c.cliente.codigo = :cliente")
-	List<ClienteContato> findByCliente(@Param("cliente") Long cliente);
+	@Query("Select c From ClienteContato c where c.cliente.codigo = :codigo")
+	List<ClienteContato> findByCliente(@Param("codigo") Long codigo);
 }

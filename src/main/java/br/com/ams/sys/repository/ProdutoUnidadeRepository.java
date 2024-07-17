@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.ams.sys.entity.ClienteEndereco;
+import br.com.ams.sys.entity.ProdutoUnidade;
 
 @Transactional(readOnly = true)
-public interface ClienteEnderecoRepository extends JpaRepository<ClienteEndereco, Long> {
-	@Query("Select c From ClienteEndereco c where c.cliente.codigo = :codigo")
-	List<ClienteEndereco> findByCliente(@Param("codigo") Long codigo);
+public interface ProdutoUnidadeRepository extends JpaRepository<ProdutoUnidade, Long> {
+	@Query("Select c From ProdutoUnidade c where c.produto.codigo = :codigo")
+	List<ProdutoUnidade> findByProduto(@Param("codigo") Long codigo);
 }
