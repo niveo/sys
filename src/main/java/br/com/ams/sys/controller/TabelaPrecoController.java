@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.ams.sys.records.TabelaPrecoDto;
+import br.com.ams.sys.records.TabelaPrecoRegistrarDto;
 import br.com.ams.sys.service.TabelaPrecoService;
 
 @RestController
@@ -40,7 +41,7 @@ public class TabelaPrecoController {
 
 	@PostMapping
 	public ResponseEntity<TabelaPrecoDto> salvar(@RequestHeader(name = "empresa", required = true) Long empresa,
-			@RequestBody TabelaPrecoDto request) throws Exception {
+			@RequestBody TabelaPrecoRegistrarDto request) throws Exception {
 		var registro = tabelaPrecoService.save(empresa, request);
 		return new ResponseEntity<TabelaPrecoDto>(registro, HttpStatus.CREATED);
 	}

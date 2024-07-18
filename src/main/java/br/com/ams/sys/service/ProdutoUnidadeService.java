@@ -2,11 +2,13 @@ package br.com.ams.sys.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import br.com.ams.sys.entity.ProdutoUnidade;
 import br.com.ams.sys.records.ProdutoUnidadeDto;
 
 public interface ProdutoUnidadeService {
-	List<ProdutoUnidadeDto> findByProduto(Long codigo);
+	Page<ProdutoUnidadeDto> findByProduto(Integer page, Long codigo);
 
 	ProdutoUnidade save(ProdutoUnidade registro) throws Exception;
 

@@ -7,6 +7,6 @@ import br.com.ams.sys.entity.TabelaPreco;
 import lombok.Builder;
 
 @Builder
-public record TabelaPrecoDto(Long codigo, String descricao, Boolean ativo, String observacao) {
+public record TabelaPrecoBaseDto(Long codigo, String descricao ) {
 
 }

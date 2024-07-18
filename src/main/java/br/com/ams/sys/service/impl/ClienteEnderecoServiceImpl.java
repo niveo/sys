@@ -3,9 +3,13 @@ package br.com.ams.sys.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.entity.ClienteEndereco;
+import br.com.ams.sys.records.ClienteContatoDto;
 import br.com.ams.sys.records.ClienteEnderecoDto;
 import br.com.ams.sys.repository.ClienteEnderecoRepository;
 import br.com.ams.sys.service.BairroService;
@@ -29,9 +33,12 @@ public class ClienteEnderecoServiceImpl implements ClienteEnderecoService {
 	private BairroService bairroService;
 
 	@Override
-	public List<ClienteEnderecoDto> findByCliente(Long codigo) {
-		var registros = clienteEnderecoRepository.findByCliente(codigo);
-		return registros.stream().map(mp -> mp.toClienteEnderecoDto()).toList();
+	public Page<ClienteEnderecoDto> findByCliente(Integer page, Long codigo) {
+		page--;
+		var pageable = PageRequest.of(page, 5);
+		var pageContent = clienteEnderecoRepository.findByCliente(codigo, pageable);
+		var content = pageContent.getContent().stream().map(mp -> mp.toClienteEnderecoDto()).toList();
+		return new RestPage<ClienteEnderecoDto>(content, page, 5, pageContent.getTotalElements());
 	}
 
 	@Override

@@ -76,7 +76,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 	public ProdutoDto save(Long codigoEmpresa, ProdutoDto entity) throws Exception {
 
 		Unidade unidade = null;
-		if (entity.unidade() != null)
+		if (entity.unidade() != null && entity.unidade().codigo() != null)
 			unidade = unidadeService.findByCodigo(entity.unidade().codigo());
 
 		Produto registrar;

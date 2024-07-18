@@ -3,10 +3,14 @@ package br.com.ams.sys.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.entity.ProdutoUnidade;
 import br.com.ams.sys.entity.Unidade;
+import br.com.ams.sys.records.ClienteEnderecoDto;
 import br.com.ams.sys.records.ProdutoUnidadeDto;
 import br.com.ams.sys.repository.ProdutoUnidadeRepository;
 import br.com.ams.sys.service.ProdutoService;
@@ -26,9 +30,12 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
 	private UnidadeService unidadeService;
 
 	@Override
-	public List<ProdutoUnidadeDto> findByProduto(Long codigo) {
-		var registros = produtoUnidadeRepository.findByProduto(codigo);
-		return registros.stream().map(mp -> mp.toProdutoUnidadeDto()).toList();
+	public Page<ProdutoUnidadeDto> findByProduto(Integer page, Long codigo) {
+		page--;
+		var pageable = PageRequest.of(page, 5);
+		var pageContent = produtoUnidadeRepository.findByProduto(codigo, pageable);
+		var content = pageContent.getContent().stream().map(mp -> mp.toProdutoUnidadeDto()).toList();
+		return new RestPage<ProdutoUnidadeDto>(content, page, 5, pageContent.getTotalElements());
 	}
 
 	@Override

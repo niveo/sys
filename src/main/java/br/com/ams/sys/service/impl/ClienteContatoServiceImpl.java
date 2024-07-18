@@ -3,13 +3,18 @@ package br.com.ams.sys.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.entity.ClienteContato;
 import br.com.ams.sys.records.ClienteContatoDto;
 import br.com.ams.sys.repository.ClienteContatoRepository;
 import br.com.ams.sys.service.ClienteContatoService;
 import br.com.ams.sys.service.ClienteService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class ClienteContatoServiceImpl implements ClienteContatoService {
@@ -20,10 +25,17 @@ public class ClienteContatoServiceImpl implements ClienteContatoService {
 	@Autowired
 	private ClienteService clienteService;
 
+	@PersistenceContext
+	private EntityManager entityManager;
+
 	@Override
-	public List<ClienteContatoDto> findByCliente(Long codigo) {
-		var registros = clienteContatoRepository.findByCliente(codigo);
-		return registros.stream().map(mp -> mp.toClienteContatoDto()).toList();
+	public Page<ClienteContatoDto> findByCliente(Integer page, Long codigo) {
+		page--;
+		var pageable = PageRequest.of(page, 5);
+		var pageContent = clienteContatoRepository.findByCliente(codigo, pageable);
+		var content = pageContent.getContent().stream().map(mp -> mp.toClienteContatoDto()).toList();
+		return new RestPage<ClienteContatoDto>(content, page, 5, pageContent.getTotalElements());
+
 	}
 
 	@Override

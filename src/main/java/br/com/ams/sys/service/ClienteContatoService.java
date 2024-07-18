@@ -2,11 +2,13 @@ package br.com.ams.sys.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import br.com.ams.sys.entity.ClienteContato;
 import br.com.ams.sys.records.ClienteContatoDto;
 
 public interface ClienteContatoService {
-	List<ClienteContatoDto> findByCliente(Long codigo);
+	Page<ClienteContatoDto> findByCliente(Integer page,Long codigo);
 
 	ClienteContato save(ClienteContato registro) throws Exception;
 

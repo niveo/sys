@@ -182,7 +182,6 @@ public class DadosIniciaiService {
 
 			var s3 = ConfiguracaoGrade.builder().caminho("/clientes").caminhoEditar("clientes_detalhe")
 					.listaItem("LT_03").caminhoInserir("clientes_cadastrar").build();
-
 			s3.setFiltros(List.of(
 					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
 							.campo("codigo").requerido(false).configuracao(s3).build(),
@@ -192,8 +191,16 @@ public class DadosIniciaiService {
 							.campo("razaoSocial").requerido(false).configuracao(s3).build(),
 					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
 							.campo("documento").requerido(false).configuracao(s3).build()));
-
 			configuracaoViewService.save(s3);
+
+			var s4 = ConfiguracaoGrade.builder().caminho("/tabelaprecos").caminhoEditar("tabelaprecos_detalhe")
+					.listaItem("LT_04").caminhoInserir("tabelaprecos_cadastrar").build();
+			s4.setFiltros(List.of(
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
+							.campo("codigo").requerido(false).configuracao(s4).build(),
+					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
+							.campo("descricao").requerido(false).configuracao(s4).build()));
+			configuracaoViewService.save(s4);
 
 			registrarEstados();
 			registrarBairros();

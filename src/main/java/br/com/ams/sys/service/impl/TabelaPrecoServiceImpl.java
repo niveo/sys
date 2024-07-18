@@ -17,6 +17,8 @@ import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.config.RedisConfig;
 import br.com.ams.sys.entity.TabelaPreco;
 import br.com.ams.sys.records.TabelaPrecoDto;
+import br.com.ams.sys.records.TabelaPrecoListaDto;
+import br.com.ams.sys.records.TabelaPrecoRegistrarDto;
 import br.com.ams.sys.repository.TabelaPrecoRepository;
 import br.com.ams.sys.service.CacheService;
 import br.com.ams.sys.service.EmpresaService;
@@ -65,7 +67,7 @@ public class TabelaPrecoServiceImpl implements TabelaPrecoService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public TabelaPrecoDto save(Long codigoEmpresa, TabelaPrecoDto entity) throws Exception {
+	public TabelaPrecoDto save(Long codigoEmpresa, TabelaPrecoRegistrarDto entity) throws Exception {
 
 		TabelaPreco registrar;
 
@@ -84,14 +86,15 @@ public class TabelaPrecoServiceImpl implements TabelaPrecoService {
 	}
 
 	@Cacheable(value = RedisConfig.CACHE_TABELA_PRECO_KEY)
-	public Page<TabelaPrecoDto> obterTodos(Long codigoEmpresa, Integer page, String conditions) throws Exception {
+	public Page<TabelaPrecoListaDto> obterTodos(Long codigoEmpresa, Integer page, String conditions) throws Exception {
 		page--;
 
 		var cb = entityManager.getCriteriaBuilder();
-		var query = cb.createQuery(TabelaPrecoDto.class);
+		var query = cb.createQuery(TabelaPrecoListaDto.class);
 		var root = query.from(TabelaPreco.class);
 
-		var select = cb.construct(TabelaPrecoDto.class, root.get("codigo"), root.get("descricao"));
+		var select = cb.construct(TabelaPrecoListaDto.class, root.get("codigo"), root.get("descricao"),
+				root.get("ativo"));
 
 		query.select(select);
 
@@ -104,7 +107,7 @@ public class TabelaPrecoServiceImpl implements TabelaPrecoService {
 		var registros = entityManager.createQuery(query).setFirstResult(page * Constante.PAGINA_REGISTROS)
 				.setMaxResults(Constante.PAGINA_REGISTROS).getResultList();
 
-		return new RestPage<TabelaPrecoDto>(registros, page, Constante.PAGINA_REGISTROS,
+		return new RestPage<TabelaPrecoListaDto>(registros, page, Constante.PAGINA_REGISTROS,
 				contarRegistros(cb, codigoEmpresa, conditions));
 	}
 
@@ -123,6 +126,11 @@ public class TabelaPrecoServiceImpl implements TabelaPrecoService {
 
 				if (node.asText().isEmpty())
 					continue;
+
+				if ("codigo".equals(name)) {
+					var predValue = cb.equal(root.get("codigo"), node.asLong());
+					predicates.add(predValue);
+				}
 
 				if ("descricao".equals(name)) {
 					var predValue = cb.like(root.get("descricao"), "%" + node.asText().toUpperCase() + "%");
@@ -160,7 +168,8 @@ public class TabelaPrecoServiceImpl implements TabelaPrecoService {
 		var query = cb.createQuery(TabelaPrecoDto.class);
 		var root = query.from(TabelaPreco.class);
 
-		var select = cb.construct(TabelaPrecoDto.class, root.get("codigo"), root.get("descricao"));
+		var select = cb.construct(TabelaPrecoDto.class, root.get("codigo"), root.get("descricao"), root.get("ativo"),
+				root.get("observacao"));
 
 		query.select(select).where(cb.equal(root.get("codigo"), codigo),
 				cb.equal(root.get("empresa").get("codigo"), codigoEmpresa));

@@ -28,6 +28,7 @@ import br.com.ams.sys.records.EnderecoDto;
 import br.com.ams.sys.records.EstadoDto;
 import br.com.ams.sys.records.RedeClienteDto;
 import br.com.ams.sys.records.SegmentoClienteDto;
+import br.com.ams.sys.records.TabelaPrecoBaseDto;
 import br.com.ams.sys.records.TabelaPrecoDto;
 import br.com.ams.sys.repository.ClienteRepository;
 import br.com.ams.sys.service.BairroService;
@@ -89,15 +90,15 @@ public class ClienteServiceImpl implements ClienteService {
 		var bairro = bairroService.findByCodigo(entidade.endereco().bairro().codigo());
 
 		SegmentoCliente segmento = null;
-		if (entidade.segmento() != null)
+		if (entidade.segmento() != null && entidade.segmento().codigo() != null)
 			segmento = segmentoClienteService.findByCodigo(entidade.segmento().codigo());
 
 		RedeCliente rede = null;
-		if (entidade.rede() != null)
+		if (entidade.rede() != null && entidade.rede().codigo() != null)
 			rede = redeClienteService.findByCodigo(entidade.rede().codigo());
 
 		TabelaPreco tabela = null;
-		if (entidade.tabela() != null)
+		if (entidade.tabela() != null && entidade.tabela().codigo() != null)
 			tabela = tabelaPrecoService.findByCodigo(entidade.tabela().codigo());
 
 		var empresa = empresaService.findByCodigo(codigoEmpresa);
@@ -238,7 +239,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 		var selectRede = cb.construct(RedeClienteDto.class, rede.get("codigo"), rede.get("descricao"));
 
-		var selectTabela = cb.construct(TabelaPrecoDto.class, tabela.get("codigo"), tabela.get("descricao"));
+		var selectTabela = cb.construct(TabelaPrecoBaseDto.class, tabela.get("codigo"), tabela.get("descricao"));
 
 		var selectEstado = cb.construct(EstadoDto.class, estado.get("codigo"), estado.get("descricao"),
 				estado.get("sigla"));
