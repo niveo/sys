@@ -14,7 +14,7 @@ import lombok.Builder;
 
 @Builder
 public record ProdutoUnidadeDto(Long codigo, TipoUnidadeOperacao tipoOperacao, BigDecimal quantidade, BigDecimal valor,
-		TipoUnidadeBarra tipoBarra, String barra, Long unidade, Long produto) {
+		TipoUnidadeBarra tipoBarra, String barra, UnidadeDto unidade, Long produto) {
 
 	public ProdutoUnidade toProdutoUnidade(ProdutoUnidade emp, Unidade unidade, Produto produto) {
 		return emp.toBuilder().barra(barra).codigo(codigo).produto(produto).quantidade(quantidade).tipoBarra(tipoBarra)

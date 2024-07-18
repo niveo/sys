@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.ams.sys.entity.ProdutoUnidade;
+import br.com.ams.sys.entity.Unidade;
 import br.com.ams.sys.records.ProdutoUnidadeDto;
 import br.com.ams.sys.repository.ProdutoUnidadeRepository;
 import br.com.ams.sys.service.ProdutoService;
@@ -38,7 +39,10 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
 	@Override
 	public ProdutoUnidadeDto save(ProdutoUnidadeDto registro) throws Exception {
 		var produto = produtoService.findByCodigo(registro.produto());
-		var unidade = unidadeService.findByCodigo(registro.unidade());
+		Unidade unidade = null;
+		if (registro.unidade() != null)
+			unidade = unidadeService.findByCodigo(registro.unidade().codigo());
+
 		ProdutoUnidade registrar = null;
 		if (registro.codigo() != null) {
 			var emp = produtoUnidadeRepository.findById(registro.codigo()).get();
@@ -46,8 +50,6 @@ public class ProdutoUnidadeServiceImpl implements ProdutoUnidadeService {
 		} else {
 			registrar = registro.toProdutoUnidade(new ProdutoUnidade(), unidade, produto);
 		}
-		registrar.setProduto(produto);
-		registrar.setUnidade(unidade);
 		return save(registrar).toProdutoUnidadeDto();
 	}
 

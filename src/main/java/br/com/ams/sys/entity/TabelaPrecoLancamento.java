@@ -53,7 +53,7 @@ public class TabelaPrecoLancamento extends AbstractTimesTampEntity {
 	@JoinColumn(name = "tabela", nullable = false)
 	private TabelaPreco tabela;
 
-	@Column(scale = 8, precision = 4)
+	@Column
 	private BigDecimal percentual;
 
 	@Basic

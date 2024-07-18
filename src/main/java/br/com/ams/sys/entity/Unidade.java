@@ -1,5 +1,6 @@
 package br.com.ams.sys.entity;
 
+import br.com.ams.sys.records.UnidadeDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
@@ -30,4 +31,8 @@ public class Unidade extends BaseEntityEmpresa {
 	@NotBlank(message = "Sigla é obrigatório")
 	@Column(nullable = false, length = 4)
 	private String sigla;
+
+	public UnidadeDto toUnidadeDto() {
+		return UnidadeDto.builder().descricao(descricao).sigla(sigla).build();
+	}
 }

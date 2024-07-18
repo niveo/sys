@@ -45,7 +45,7 @@ public class TabelaPrecoProduto implements Serializable {
 	@JoinColumn(nullable = false, name = "produto")
 	private Produto produto;
 
-	@Column(scale = 8, precision = 4, nullable = false)
+	@Column(  nullable = false)
 	private BigDecimal valor;
 
 }

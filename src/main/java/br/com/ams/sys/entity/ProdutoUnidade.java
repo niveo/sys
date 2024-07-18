@@ -53,11 +53,11 @@ public class ProdutoUnidade extends AbstractTimesTampEntity {
 	private TipoUnidadeOperacao tipoOperacao;
 
 	@NotNull
-	@Column(precision = 53, length = 8)
+	@Column(nullable = false)
 	private BigDecimal quantidade;
 
 	@NotNull
-	@Column(precision = 53, length = 8)
+	@Column(nullable = false)
 	private BigDecimal valor;
 
 	@NotNull(message = "Tipo barra é obrigatório")
@@ -78,7 +78,8 @@ public class ProdutoUnidade extends AbstractTimesTampEntity {
 
 	public ProdutoUnidadeDto toProdutoUnidadeDto() {
 		return ProdutoUnidadeDto.builder().codigo(codigo).barra(barra).produto(produto.getCodigo())
-				.quantidade(quantidade).tipoBarra(tipoBarra).tipoOperacao(tipoOperacao).unidade(unidade.getCodigo())
+				.quantidade(quantidade).tipoBarra(tipoBarra).tipoOperacao(tipoOperacao)
+				.unidade(unidade.toUnidadeDto())
 				.valor(valor).build();
 	}
 }
