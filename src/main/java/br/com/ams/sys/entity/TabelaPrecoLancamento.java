@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
+import br.com.ams.sys.records.TabelaPrecoLancamentoDto;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,10 +31,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
-@Builder
+@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(of = { "codigo" })
@@ -65,5 +67,10 @@ public class TabelaPrecoLancamento extends AbstractTimesTampEntity {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@OneToMany(mappedBy = "lancamento", targetEntity = TabelaPrecoProduto.class)
 	private List<TabelaPrecoProduto> produtos;
+
+	public TabelaPrecoLancamentoDto toTabelaPrecoLancamentoDto() {
+		return TabelaPrecoLancamentoDto.builder().codigo(codigo).percentual(percentual).tabela(tabela.getCodigo())
+				.vigor(vigor).build();
+	}
 
 }
