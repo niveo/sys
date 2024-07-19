@@ -23,6 +23,7 @@ public class RedisConfig {
 	public static final String CACHE_SEGMENTO_CLIENTES_KEY = "segmento_clientes";
 	public static final String CACHE_TABELA_PRECO_KEY = "tabela_preco";
 	public static final String CACHE_PRODUTO_KEY = "produtos";
+	public static final String CACHE_CONFIG_PESQUISA_CODIGO_KEY = "config_pesquisa_codigo";
 	public static final String CACHE_REDE_CLIENTES_KEY = "rede_clientes";
 	public static final String CACHE_EMPRESAS_KEY = "empresas";
 	public static final String CACHE_USUARIO_EMAIL_KEY = "usuario_email";
@@ -33,7 +34,7 @@ public class RedisConfig {
 
 	@CacheEvict(allEntries = true, value = { CACHE_ESTADOS_KEY, CACHE_BAIRRO_KEY, CACHE_CIDADE_KEY,
 			CACHE_CEP_PESQUISA_KEY, CACHE_EMPRESAS_USUARIO_KEY, CACHE_SEGMENTO_CLIENTES_KEY, CACHE_REDE_CLIENTES_KEY,
-			CACHE_TABELA_PRECO_KEY, CACHE_UNIDADES_KEY })
+			CACHE_TABELA_PRECO_KEY, CACHE_UNIDADES_KEY ,CACHE_CONFIG_PESQUISA_CODIGO_KEY})
 	@Scheduled(fixedDelayString = "${cache.ttl.ms}")
 	public void evictCache() {
 		log.info("Cache cleared");

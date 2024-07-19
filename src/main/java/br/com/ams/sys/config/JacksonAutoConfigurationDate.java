@@ -25,7 +25,7 @@ import br.com.ams.sys.serializer.MillisOrLocalDateTimeSerializer;
 
 @Configuration
 public class JacksonAutoConfigurationDate {
-	@Bean
+	/*@Bean
 	Jackson2ObjectMapperBuilderCustomizer jacksonObjectMapperCustomization() {
 		return builder -> {
 			builder.timeZone(ZoneId.systemDefault().getId());
@@ -37,7 +37,7 @@ public class JacksonAutoConfigurationDate {
 					.deserializerByType(LocalDate.class, new MillisOrLocalDateDeserializer());
 
 		};
-	}
+	}*/
 
 	@Bean
 	ObjectMapper objectMapper() {
@@ -55,7 +55,7 @@ public class JacksonAutoConfigurationDate {
 		// Não travar os filtros usados nas classes, principalmente a DashBoardService
 		mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
 
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
+		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		mapper.setTimeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
 
 		mapper.disable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
@@ -68,11 +68,11 @@ public class JacksonAutoConfigurationDate {
 		// simpleModule.addSerializer(Parceiro.class, new ParceiroSerializer());
 		// simpleModule.addSerializer(Vendedor.class, new VendedorSerializer());
 
-		simpleModule.addSerializer(LocalDate.class, new MillisOrLocalDateSerializer());
+		/*simpleModule.addSerializer(LocalDate.class, new MillisOrLocalDateSerializer());
 		simpleModule.addDeserializer(LocalDate.class, new MillisOrLocalDateDeserializer());
 
 		simpleModule.addSerializer(ZonedDateTime.class, new MillisOrLocalDateTimeSerializer());
-		simpleModule.addDeserializer(ZonedDateTime.class, new MillisOrLocalDateTimeDeserializer());
+		simpleModule.addDeserializer(ZonedDateTime.class, new MillisOrLocalDateTimeDeserializer());*/
 
 		
 		mapper.registerModule(new JavaTimeModule());

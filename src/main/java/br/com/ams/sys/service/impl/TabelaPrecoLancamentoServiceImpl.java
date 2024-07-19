@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.ams.sys.common.RestPage;
 import br.com.ams.sys.entity.ProdutoUnidade;
@@ -21,8 +23,10 @@ import br.com.ams.sys.service.ProdutoUnidadeService;
 import br.com.ams.sys.service.TabelaPrecoLancamentoService;
 import br.com.ams.sys.service.TabelaPrecoService;
 import br.com.ams.sys.service.UnidadeService;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
+@Transactional(readOnly = true)
 public class TabelaPrecoLancamentoServiceImpl implements TabelaPrecoLancamentoService {
 
 	@Autowired
@@ -42,11 +46,13 @@ public class TabelaPrecoLancamentoServiceImpl implements TabelaPrecoLancamentoSe
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public TabelaPrecoLancamento save(TabelaPrecoLancamento registro) throws Exception {
 		return tabelaPrecoLancamentoRepository.save(registro);
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
 	public TabelaPrecoLancamentoDto save(TabelaPrecoLancamentoDto registro) throws Exception {
 		var tabela = tabelaPrecoService.findByCodigo(registro.tabela());
 
@@ -63,6 +69,13 @@ public class TabelaPrecoLancamentoServiceImpl implements TabelaPrecoLancamentoSe
 	@Override
 	public void deleteByCodigo(Long codigo) {
 		tabelaPrecoLancamentoRepository.deleteById(codigo);
+	}
+
+	@Override
+	public TabelaPrecoLancamento findByCodigo(Long codigo) throws Exception {
+		return tabelaPrecoLancamentoRepository.findById(codigo)
+				.orElseThrow(() -> new EntityNotFoundException("Not entity found"));
+
 	}
 
 }

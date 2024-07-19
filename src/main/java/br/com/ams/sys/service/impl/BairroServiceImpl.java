@@ -110,7 +110,11 @@ public class BairroServiceImpl implements BairroService {
 					continue;
 
 				if ("descricao".equals(name)) {
-					var predValue = cb.like(root.get("descricao"), "%" + node.asText() + "%");
+					var predValue = cb.like(root.get("descricao"), "%" + node.asText().toUpperCase() + "%");
+					predicates.add(predValue);
+				}
+				if ("codigo".equals(name)) {
+					var predValue = cb.equal(root.get("codigo"), node.asLong());
 					predicates.add(predValue);
 				}
 			}

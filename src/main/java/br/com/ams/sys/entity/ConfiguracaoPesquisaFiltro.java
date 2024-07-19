@@ -1,15 +1,10 @@
 package br.com.ams.sys.entity;
 
-import java.io.Serializable;
-import java.util.Set;
-import java.util.UUID;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import jakarta.persistence.CascadeType;
+import br.com.ams.sys.records.ConfiguracaoPesquisaFiltroDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,7 +26,7 @@ import lombok.ToString;
 @ToString(of = { "codigo" })
 @Entity
 @Table
-public class ConfiguracaoGradeFiltro extends AbstractTimesTampEntity {
+public class ConfiguracaoPesquisaFiltro extends AbstractTimesTampEntity {
 
 	private static final long serialVersionUID = 1L;
 
@@ -51,5 +46,10 @@ public class ConfiguracaoGradeFiltro extends AbstractTimesTampEntity {
 	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "configuracao", nullable = false, insertable = false, updatable = false)
-	private ConfiguracaoGrade configuracao;
+	private ConfiguracaoPesquisa configuracao;
+
+	public ConfiguracaoPesquisaFiltroDto toConfiguracaoPesquisaFiltroDto() {
+		return ConfiguracaoPesquisaFiltroDto.builder().campo(campo).codigo(codigo).componente(componente)
+				.descricao(descricao).posicao(posicao).requerido(requerido).tipo(tipo).build();
+	}
 }

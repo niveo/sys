@@ -98,7 +98,8 @@ public class ProdutoServiceImpl implements ProdutoService {
 
 	@Cacheable(value = RedisConfig.CACHE_PRODUTO_KEY)
 	public Page<ProdutoListaDto> obterTodos(Long codigoEmpresa, Integer page, String conditions) throws Exception {
-		page--;
+		if (page > 0)
+			page--;
 
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(ProdutoListaDto.class);

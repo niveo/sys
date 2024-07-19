@@ -1,6 +1,9 @@
 package br.com.ams.sys.bd;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,14 +26,18 @@ import br.com.ams.sys.entity.Cidade;
 import br.com.ams.sys.entity.Cliente;
 import br.com.ams.sys.entity.ClienteContato;
 import br.com.ams.sys.entity.ClienteEndereco;
-import br.com.ams.sys.entity.ConfiguracaoGrade;
-import br.com.ams.sys.entity.ConfiguracaoGradeFiltro;
+import br.com.ams.sys.entity.ConfiguracaoPesquisa;
+import br.com.ams.sys.entity.ConfiguracaoPesquisaFiltro;
+import br.com.ams.sys.entity.ConfiguracaoPesquisaGrade;
+import br.com.ams.sys.entity.ConfiguracaoPesquisaGrade;
 import br.com.ams.sys.entity.Empresa;
 import br.com.ams.sys.entity.Endereco;
 import br.com.ams.sys.entity.Estado;
 import br.com.ams.sys.entity.Produto;
 import br.com.ams.sys.entity.SegmentoCliente;
 import br.com.ams.sys.entity.TabelaPreco;
+import br.com.ams.sys.entity.TabelaPrecoLancamento;
+import br.com.ams.sys.entity.TabelaPrecoProduto;
 import br.com.ams.sys.entity.Unidade;
 import br.com.ams.sys.enuns.RoleName;
 import br.com.ams.sys.enuns.TipoPessoa;
@@ -46,11 +53,13 @@ import br.com.ams.sys.service.BairroService;
 import br.com.ams.sys.service.CEPService;
 import br.com.ams.sys.service.CidadeService;
 import br.com.ams.sys.service.ClienteService;
-import br.com.ams.sys.service.ConfiguracaoGradeService;
+import br.com.ams.sys.service.ConfiguracaoPesquisaService;
 import br.com.ams.sys.service.EmpresaService;
 import br.com.ams.sys.service.EstadoService;
 import br.com.ams.sys.service.ProdutoService;
 import br.com.ams.sys.service.SegmentoClienteService;
+import br.com.ams.sys.service.TabelaPrecoLancamentoService;
+import br.com.ams.sys.service.TabelaPrecoProdutoService;
 import br.com.ams.sys.service.TabelaPrecoService;
 import br.com.ams.sys.service.UsuarioService;
 
@@ -93,6 +102,12 @@ public class DadosIniciaiService {
 	private TabelaPrecoService tabelaPrecoService;
 
 	@Autowired
+	private TabelaPrecoLancamentoService tabelaPrecoLancamentoService;
+
+	@Autowired
+	private TabelaPrecoProdutoService tabelaPrecoProdutoService;
+
+	@Autowired
 	PasswordEncoder passwordEncoder;
 
 	@Autowired
@@ -108,7 +123,7 @@ public class DadosIniciaiService {
 	private ProdutoRepository produtoRepository;
 
 	@Autowired
-	private ConfiguracaoGradeService configuracaoViewService;
+	private ConfiguracaoPesquisaService configuracaoViewService;
 
 	@Autowired
 	private UnidadeRepository unidadeRepository;
@@ -154,53 +169,105 @@ public class DadosIniciaiService {
 	public void iniciar() {
 		try {
 
-			var s1 = ConfiguracaoGrade.builder().caminho("/produtos").caminhoEditar("produtos_detalhe")
-					.listaItem("LT_01").caminhoInserir("produtos_cadastrar").build();
-			s1.setFiltros(List.of(
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
-							.campo("codigo").requerido(false).configuracao(s1).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
-							.campo("descricao").requerido(false).configuracao(s1).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Referência").posicao(2)
-							.campo("referencia").requerido(false).configuracao(s1).build()));
-			configuracaoViewService.save(s1);
+			configuracaoViewService.save(ConfiguracaoPesquisa.builder().caminho("/produtos").descricao("Produtos")
+					.grade(ConfiguracaoPesquisaGrade.builder().caminhoEditar("produtos_detalhe").listaItem("LT_01")
+							.caminhoInserir("produtos_cadastrar").build())
+					.filtros(List.of(
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
+									.posicao(0).campo("codigo").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
+									.campo("descricao").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Referência").posicao(2)
+									.campo("referencia").requerido(false).build()))
+					.build());
 
-			var s2 = ConfiguracaoGrade.builder().caminho("/empresas").caminhoEditar("empresas_detalhe")
-					.listaItem("LT_02").caminhoInserir("empresas_cadastrar").build();
+			configuracaoViewService.save(ConfiguracaoPesquisa.builder().caminho("/empresas").descricao("Empresas")
+					.grade(ConfiguracaoPesquisaGrade.builder().caminhoEditar("empresas_detalhe").listaItem("LT_02")
+							.caminhoInserir("empresas_cadastrar").build())
+					.filtros(List.of(
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
+									.posicao(0).campo("codigo").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Nome").posicao(1)
+									.campo("nome").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Razão Social")
+									.posicao(2).campo("razaoSocial").requerido(false).build(),
 
-			s2.setFiltros(List.of(
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
-							.campo("codigo").requerido(false).configuracao(s2).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Nome").posicao(1).campo("nome")
-							.requerido(false).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Razão Social").posicao(2)
-							.campo("razaoSocial").requerido(false).configuracao(s2).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
-							.campo("documento").requerido(false).configuracao(s2).build()));
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
+									.campo("documento").requerido(false).build()))
+					.build());
 
-			configuracaoViewService.save(s2);
+			configuracaoViewService.save(ConfiguracaoPesquisa.builder().caminho("/clientes").descricao("Clientes")
+					.grade(ConfiguracaoPesquisaGrade.builder().caminhoEditar("clientes_detalhe").listaItem("LT_03")
+							.caminhoInserir("clientes_cadastrar").build())
+					.filtros(List.of(
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
+									.posicao(0).campo("codigo").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Nome").posicao(1)
+									.campo("nome").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Razão Social")
+									.posicao(2).campo("razaoSocial").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
+									.campo("documento").requerido(false).build()))
+					.build());
 
-			var s3 = ConfiguracaoGrade.builder().caminho("/clientes").caminhoEditar("clientes_detalhe")
-					.listaItem("LT_03").caminhoInserir("clientes_cadastrar").build();
-			s3.setFiltros(List.of(
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
-							.campo("codigo").requerido(false).configuracao(s3).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Nome").posicao(1).campo("nome")
-							.requerido(false).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Razão Social").posicao(2)
-							.campo("razaoSocial").requerido(false).configuracao(s3).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("CNPJ / CPF").posicao(3)
-							.campo("documento").requerido(false).configuracao(s3).build()));
-			configuracaoViewService.save(s3);
+			configuracaoViewService.save(ConfiguracaoPesquisa.builder().caminho("/tabelaprecos").descricao("Tabelas")
+					.grade(ConfiguracaoPesquisaGrade.builder().caminhoEditar("tabelaprecos_detalhe").listaItem("LT_04")
+							.caminhoInserir("tabelaprecos_cadastrar").build())
+					.filtros(List.of(
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
+									.posicao(0).campo("codigo").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
+									.campo("descricao").requerido(false).build()))
+					.build());
 
-			var s4 = ConfiguracaoGrade.builder().caminho("/tabelaprecos").caminhoEditar("tabelaprecos_detalhe")
-					.listaItem("LT_04").caminhoInserir("tabelaprecos_cadastrar").build();
-			s4.setFiltros(List.of(
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").tipo("number").descricao("Código").posicao(0)
-							.campo("codigo").requerido(false).configuracao(s4).build(),
-					ConfiguracaoGradeFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
-							.campo("descricao").requerido(false).configuracao(s4).build()));
-			configuracaoViewService.save(s4);
+			configuracaoViewService.save(
+					ConfiguracaoPesquisa.builder().caminho("/bairros").descricao("Bairro").componenteCadastro("CA_01")
+							.filtros(List.of(
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number")
+											.descricao("Código").posicao(0).campo("codigo").requerido(false).build(),
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Descrição")
+											.posicao(1).campo("descricao").requerido(false).build()))
+							.build());
+
+			configuracaoViewService.save(
+					ConfiguracaoPesquisa.builder().caminho("/cidades").descricao("Cidade").componenteCadastro("CA_02")
+							.filtros(List.of(
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number")
+											.descricao("Código").posicao(0).campo("codigo").requerido(false).build(),
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Descrição")
+											.posicao(1).campo("descricao").requerido(false).build(),
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Estado")
+											.posicao(1).campo("estado").requerido(false).build()))
+							.build());
+
+			configuracaoViewService.save(
+					ConfiguracaoPesquisa.builder().caminho("/unidades").descricao("Unidade").componenteCadastro("CA_03")
+							.filtros(List.of(
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number")
+											.descricao("Código").posicao(0).campo("codigo").requerido(false).build(),
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Descrição")
+											.posicao(1).campo("descricao").requerido(false).build(),
+									ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Sigla")
+											.posicao(1).campo("sigla").requerido(false).build()))
+							.build());
+
+			configuracaoViewService.save(ConfiguracaoPesquisa.builder().caminho("/redesclientes").descricao("Rede")
+					.componenteCadastro("CA_04")
+					.filtros(List.of(
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
+									.posicao(0).campo("codigo").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
+									.campo("descricao").requerido(false).build()))
+					.build());
+
+			configuracaoViewService.save(ConfiguracaoPesquisa.builder().caminho("/segmentosclientes")
+					.descricao("Segmento").componenteCadastro("CA_05")
+					.filtros(List.of(
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").tipo("number").descricao("Código")
+									.posicao(0).campo("codigo").requerido(false).build(),
+							ConfiguracaoPesquisaFiltro.builder().componente("CP_01").descricao("Descrição").posicao(1)
+									.campo("descricao").requerido(false).build()))
+					.build());
 
 			registrarEstados();
 			registrarBairros();
@@ -232,7 +299,13 @@ public class DadosIniciaiService {
 
 			clienteRepository.saveAll(listaCliente(endereco, empresa, tabelaPreco));
 
-			produtoRepository.saveAll(listaProduto(empresa));
+			var produtos = produtoRepository.saveAll(listaProduto(empresa));
+
+			var lancamento = tabelaPrecoLancamentoService.save(TabelaPrecoLancamento.builder().tabela(tabelaPreco)
+					.vigor(LocalDateTime.now(ZoneId.systemDefault())).build());
+
+			tabelaPrecoProdutoService.save(TabelaPrecoProduto.builder().lancamento(lancamento).produto(produtos.get(0))
+					.valor(new BigDecimal(5.55)).build());
 
 			var segmento = segmentoClienteService
 					.save(SegmentoCliente.builder().descricao("ALIMENTAR").empresa(empresa).build());

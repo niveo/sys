@@ -45,7 +45,6 @@ public class CidadeServiceImpl implements CidadeService {
 	@Autowired
 	private CacheService cacheService;
 
-	
 	@Override
 	public Cidade save(Cidade entidade) throws Exception {
 		if (StringUtils.isNotEmpty(entidade.getDescricao()))
@@ -133,8 +132,17 @@ public class CidadeServiceImpl implements CidadeService {
 					continue;
 
 				if ("descricao".equals(name)) {
-					var predValue = cb.like(root.get("descricao"), "%" + node.asText() + "%");
-					predicates.add(cb.or(predValue));
+					var predValue = cb.like(root.get("descricao"), "%" + node.asText().toUpperCase() + "%");
+					predicates.add(predValue);
+				}
+				if ("codigo".equals(name)) {
+					var predValue = cb.equal(root.get("codigo"), node.asLong());
+					predicates.add(predValue);
+				}
+				if ("estado".equals(name)) {
+					predicates.add(
+							cb.or(cb.like(root.get("estado").get("descricao"), "%" + node.asText().toUpperCase() + "%"),
+									cb.like(root.get("estado").get("sigla"), "%" + node.asText().toUpperCase() + "%")));
 				}
 			}
 		}

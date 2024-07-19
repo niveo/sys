@@ -9,20 +9,20 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.ams.sys.records.ConfiguracaoGradeDto;
-import br.com.ams.sys.service.ConfiguracaoGradeService;
+import br.com.ams.sys.records.ConfiguracaoPesquisaDto;
+import br.com.ams.sys.service.ConfiguracaoPesquisaService;
 
 @RestController
-@RequestMapping(value = { "/configuracaograde" })
-public class ConfiguracaoViewController {
+@RequestMapping(value = { "/configuracaopesquisa" })
+public class ConfiguracaoPesquisaController {
 	@Autowired
-	private ConfiguracaoGradeService configuracaoViewService;
+	private ConfiguracaoPesquisaService configuracaoViewService;
 
 	@GetMapping("/{codigo}")
-	public ResponseEntity<ConfiguracaoGradeDto> obterCodigo(
+	public ResponseEntity<ConfiguracaoPesquisaDto> obterCodigo(
 			@RequestHeader(name = "empresa", required = true) Long empresa,
 			@PathVariable(name = "codigo", required = true) Long codigo) throws Exception {
 		var response = configuracaoViewService.obterCodigo(empresa, codigo);
-		return new ResponseEntity<ConfiguracaoGradeDto>(response, HttpStatus.OK);
+		return new ResponseEntity<ConfiguracaoPesquisaDto>(response, HttpStatus.OK);
 	}
 }

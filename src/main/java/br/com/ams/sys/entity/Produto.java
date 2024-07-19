@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import br.com.ams.sys.records.ProdutoListaDto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,4 +60,9 @@ public class Produto extends BaseEntityEmpresaExterno {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "produto", cascade = CascadeType.ALL, targetEntity = ProdutoUnidade.class, orphanRemoval = true)
 	private List<ProdutoUnidade> unidades;
+
+	public ProdutoListaDto toProdutoListaDto() { 
+		return ProdutoListaDto.builder().ativo(ativo).codigo(getCodigo()).descricao(descricao).referencia(referencia)
+				.build();
+	}
 }
