@@ -26,7 +26,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
 @Builder
@@ -48,6 +47,9 @@ public class Catalogo extends AbstractTimesTampEntity {
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Empresa.class, optional = false)
 	@JoinColumn(nullable = false, name = "empresa", insertable = false, updatable = false)
 	private Empresa empresa;
+
+	@Column(nullable = false)
+	private String descricao;
 
 	@Column(nullable = false)
 	private Boolean ativo = false;
